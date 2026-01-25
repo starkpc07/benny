@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { RiArrowLeftSLine, RiArrowRightSLine, RiExpandLeftRightLine } from "react-icons/ri";
 import popImg from "../assets/pop.webp"
-import PappadImg from "../assets/Pappad.webp"
+import PappadImg from "../assets/pappad.webp"
 import jigarImg from "../assets/jigar.webp"
 import candyImg from "../assets/candy.webp"
 import cauliImg from "../assets/cauli.webp"
