@@ -66,7 +66,7 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#fafafa] flex flex-col items-center justify-center p-4 pt-24 selection:bg-red-100">
+    <div className="min-h-screen w-full bg-[#fafafa] flex flex-col items-center justify-center p-4 pt-10 md:pt-36 selection:bg-red-100">
       <AnimatePresence mode="wait">
         {!user ? (
           /* CONTAINER SIZE REDUCED TO 800px max */
