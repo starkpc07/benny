@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { RiArrowRightSLine, RiArrowLeftSLine } from "react-icons/ri";
 import cateringImg from "../assets/catering.webp"
 import weddingImg from "../assets/wedding.webp"
-import corporateImg from "../assets/Corporate.webp"
+import corporateImg from "../assets/corporate.webp"
 import birthdayImg from "../assets/birthday.webp"
 import djImg from "../assets/dj.webp"
 import stallImg from "../assets/stall.webp"
