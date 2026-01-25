@@ -47,7 +47,7 @@ const Home = () => {
             >
               <div className="absolute inset-0 bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] bg-size-[200%_100%] transition-all duration-700 group-hover:bg-position-[100%_0%]" />
               <span className="relative flex items-center justify-center gap-3">
-                Send Inquiry <RiCalendarCheckLine className="text-xl" />
+                Book Events <RiCalendarCheckLine className="text-xl" />
               </span>
             </button>
           </div>

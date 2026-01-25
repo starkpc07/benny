@@ -154,7 +154,7 @@ const Navbar = () => {
               <img
                 src={logoImg}
                 alt="Chef Logo"
-                className="h-24 w-24 object-contain p-1"
+                className="h-19 w-19 object-contain p-1"
               />
               <span className="text-lg font-black text-white md:text-xl xl:text-2xl tracking-tighter uppercase">
                 Benny Events
