@@ -43,7 +43,7 @@ const Book = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#fafafa] flex flex-col items-center justify-center p-4 pt-12 md:pt-36 selection:bg-red-100">
+    <div className="min-h-screen w-full bg-[#fafafa] flex flex-col items-center justify-center p-4 md:pt-36 selection:bg-red-100">
       <div className="w-full max-w-200">
         
         {/* MOBILE ONLY BACK BUTTON (Same as Login) */}
