@@ -70,7 +70,7 @@ const Stalls = () => {
             The Experience
           </span>
           <h2 className="text-3xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] sm:text-4xl md:text-5xl lg:text-6xl">
-            Premium <span className="text-red-700 italic">Add-ons</span>
+            Add-ons <span className="text-red-700 italic">Stall</span>
           </h2>
         </motion.div>
       </div>
