@@ -1,14 +1,23 @@
 import { motion } from "framer-motion";
 import { RiCalendarCheckLine } from "react-icons/ri";
+import { useNavigate } from "react-router-dom"; // 1. Added useNavigate
 import Slider from "../components/Slider";
 
 const Home = () => {
+  const navigate = useNavigate(); // 2. Initialize Navigate
+
   const stats = [
     { label: "Successful Events", val: "1000+" },
     { label: "Years of Excellence", val: "12+" },
     { label: "South India Presence", val: "All Over" },
     { label: "Service Quality", val: "Premium" },
   ];
+
+  // 3. Handle Navigation + Scroll to Top
+  const handleBookClick = () => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    navigate("/book");
+  };
 
   return (
     <main className="relative w-full bg-[#FAF9F6] text-black pt-32 md:pt-46 overflow-hidden flex flex-col items-center selection:bg-red-600 selection:text-white">
@@ -41,9 +50,10 @@ const Home = () => {
           </motion.p>
 
           <div className="flex items-center justify-center gap-6 w-full sm:w-auto">
+            {/* 4. BUTTON WITH SCROLL LOGIC */}
             <button
-              type="submit"
-              className="group relative w-full sm:w-auto overflow-hidden py-5 px-10 rounded-full font-black uppercase text-[10px] tracking-[0.2em] text-white shadow-2xl transition-all active:scale-95 flex justify-center items-center gap-3"
+              onClick={handleBookClick}
+              className="group relative w-full sm:w-auto overflow-hidden py-5 px-10 rounded-full font-black uppercase text-[10px] tracking-[0.2em] text-white shadow-2xl transition-all active:scale-95 flex justify-center items-center gap-3 cursor-pointer"
             >
               <div className="absolute inset-0 bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] bg-size-[200%_100%] transition-all duration-700 group-hover:bg-position-[100%_0%]" />
               <span className="relative flex items-center justify-center gap-3">
@@ -54,7 +64,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- STATS BAR: ADJUSTED SIZES --- */}
+      {/* --- STATS BAR --- */}
       <section className="relative z-10 px-6 max-w-5xl w-full mx-auto py-10 mt-10 border-t border-black/5">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 md:gap-12 text-center">
           {stats.map((stat, i) => (

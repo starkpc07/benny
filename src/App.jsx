@@ -8,6 +8,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Stalls from './pages/Stalls';
 import Login from './pages/Login';
+import Book from './pages/Book';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
             </>
           } />
           <Route path="/login" element={<Login />} />
+          <Route path="/book" element={<Book />} />
         </Routes>
       </main>
       <Footer />
