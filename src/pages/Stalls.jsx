@@ -45,8 +45,8 @@ const Stalls = () => {
 
   const variants = {
     center: { x: "0%", scale: 1.1, zIndex: 10, opacity: 1, rotateY: 0, z: 0 },
-    left: { x: "-75%", scale: 0.8, zIndex: 5, opacity: 0.4, rotateY: 45, z: -200 },
-    right: { x: "75%", scale: 0.8, zIndex: 5, opacity: 0.4, rotateY: -45, z: -200 },
+    left: { x: "-75%", scale: 0.8, zIndex: 5, opacity: 0.8, rotateY: 45, z: -200 },
+    right: { x: "75%", scale: 0.8, zIndex: 5, opacity: 0.8, rotateY: -45, z: -200 },
     hidden: { x: "0%", scale: 0.5, zIndex: 0, opacity: 0, rotateY: 0, z: -400 },
   };
 

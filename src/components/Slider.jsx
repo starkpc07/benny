@@ -13,7 +13,7 @@ const Slider = () => {
     { title: "Catering Services", img: cateringImg },
     { title: "Wedding Events", img: weddingImg  },
     { title: "Corporate Events", img: corporateImg },
-    { title: "Birthday & Private Parties", img: birthdayImg },
+    { title: "Birthday Party & Family Functions", img: birthdayImg },
     { title: "Stage & Sound Setup", img: djImg },
     { title: "Stalls", img: stallImg },
   ];

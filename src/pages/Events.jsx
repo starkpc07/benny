@@ -56,7 +56,7 @@ const ServiceCard = ({ service }) => {
             WebkitBackfaceVisibility: "hidden",
           }}
         >
-          <div className="group relative h-full w-full overflow-hidden rounded-3xl bg-zinc-200 shadow-xl sm:rounded-4xl">
+          <div className="group relative h-full w-full overflow-hidden rounded-3xl shadow-xl sm:rounded-4xl">
             {/* Image with improved visibility */}
             <img
               src={service.image}
@@ -65,7 +65,6 @@ const ServiceCard = ({ service }) => {
             />
 
             {/* Lightened Overlays */}
-            <div className="absolute inset-0 bg-black/20 transition-opacity group-hover:bg-black/10" />
             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" />
 
             <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-8">

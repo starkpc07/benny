@@ -4,18 +4,18 @@ import { RiDoubleQuotesL, RiFocus3Line, RiUserStarFill } from "react-icons/ri";
 const About = () => {
   // Enhanced variants with hidden (initial), visible, and exit states
   const fadeInRight = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       x: 30,
-      transition: { duration: 0.5 } 
+      transition: { duration: 0.5 },
     },
     visible: (custom) => ({
       opacity: 1,
       x: 0,
-      transition: { 
-        duration: 0.8, 
-        delay: custom * 0.2, 
-        ease: [0.16, 1, 0.3, 1] 
+      transition: {
+        duration: 0.8,
+        delay: custom * 0.2,
+        ease: [0.16, 1, 0.3, 1],
       },
     }),
   };
@@ -30,14 +30,14 @@ const About = () => {
       <div className="absolute bottom-[10%] right-[-10%] w-62.5 h-62.5 md:w-150 md:h-150 rounded-full bg-slate-200/40 blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-6">
-        
         {/* HEADER SECTION - REVERSES ON SCROLL UP */}
-        <div className="mb-12 md:mb-20 flex flex-col items-center">
+        <div className="mb-12 md:mb-20 flex flex-col items-center overflow-hidden">
+          {/* Subtitle - Center Fade */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.5 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: false, amount: 0.2 }} // Triggers easily
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className="flex flex-col items-center"
           >
             <div className="flex items-center gap-2 mb-4">
@@ -47,11 +47,39 @@ const About = () => {
               </span>
               <span className="h-px w-6 bg-red-600" />
             </div>
-
-            <h2 className="text-3xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] sm:text-4xl md:text-5xl lg:text-6xl text-center whitespace-nowrap">
-              Crafting <span className="text-red-700 italic">Legacy</span>
-            </h2>
           </motion.div>
+
+          {/* Main Title - Split Animation that reverses */}
+          <h2 className="flex flex-wrap justify-center gap-x-4 text-4xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] sm:text-5xl md:text-6xl lg:text-7xl text-center">
+            {/* Left Side: Crafting (Comes from Left) */}
+            <motion.span
+              initial={{ opacity: 0, x: -150 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: false, amount: 0.4 }}
+              transition={{
+                duration: 0.9,
+                ease: [0.16, 1, 0.3, 1], // Custom luxury cubic-bezier
+              }}
+              className="inline-block"
+            >
+              Crafting
+            </motion.span>
+
+            {/* Right Side: Legacy (Comes from Right) */}
+            <motion.span
+              initial={{ opacity: 0, x: 150 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: false, amount: 0.4 }}
+              transition={{
+                duration: 0.9,
+                ease: [0.16, 1, 0.3, 1],
+                delay: 0.05, // Tiny stagger for a more dynamic feel
+              }}
+              className="text-red-700 italic inline-block"
+            >
+              Legacy
+            </motion.span>
+          </h2>
         </div>
 
         {/* CONTENT GRID */}
@@ -73,7 +101,9 @@ const About = () => {
             </div>
 
             <div className="absolute -bottom-6 -right-4 md:-right-8 bg-red-700 size-24 md:size-32 rounded-full flex flex-col items-center justify-center text-white shadow-2xl border-4 border-[#FAF9F6] z-20">
-              <div className="text-3xl md:text-4xl font-black leading-none">12+</div>
+              <div className="text-3xl md:text-4xl font-black leading-none">
+                40+
+              </div>
               <div className="text-[8px] md:text-[10px] uppercase tracking-widest font-bold opacity-80 mt-1 text-center px-4 leading-tight">
                 Years of <br /> Excellence
               </div>
@@ -110,7 +140,7 @@ const About = () => {
               management by blending tradition with contemporary luxury.
             </motion.p>
 
-            <motion.div 
+            <motion.div
               custom={3}
               initial="hidden"
               whileInView="visible"
@@ -123,8 +153,12 @@ const About = () => {
                   <RiFocus3Line className="text-2xl text-red-600" />
                 </div>
                 <div>
-                  <h4 className="font-black uppercase text-[10px] tracking-widest mb-1 text-black">The Mission</h4>
-                  <p className="text-[11px] text-zinc-500 leading-snug">Transforming visions into masterpieces.</p>
+                  <h4 className="font-black uppercase text-[10px] tracking-widest mb-1 text-black">
+                    The Mission
+                  </h4>
+                  <p className="text-[11px] text-zinc-500 leading-snug">
+                    Transforming visions into masterpieces.
+                  </p>
                 </div>
               </div>
 
@@ -133,8 +167,12 @@ const About = () => {
                   <RiUserStarFill className="text-2xl text-red-600" />
                 </div>
                 <div>
-                  <h4 className="font-black uppercase text-[10px] tracking-widest mb-1 text-black">Our Quality</h4>
-                  <p className="text-[11px] text-zinc-500 leading-snug">Exceeding standards of excellence.</p>
+                  <h4 className="font-black uppercase text-[10px] tracking-widest mb-1 text-black">
+                    Our Quality
+                  </h4>
+                  <p className="text-[11px] text-zinc-500 leading-snug">
+                    Exceeding standards of excellence.
+                  </p>
                 </div>
               </div>
             </motion.div>

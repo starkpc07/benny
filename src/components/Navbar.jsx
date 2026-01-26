@@ -28,30 +28,24 @@ const Navbar = () => {
     return () => unsubscribe();
   }, []);
 
-  // Updated Scroll Handler
   const handleNavClick = (e, path) => {
     const isAnchor = path.startsWith("#");
     setIsMenuOpen(false);
 
-    // Calculate dynamic offset based on screen width
+    // Dynamic offset: small gap for mobile, slightly more for desktop
     const scrollOffset = window.innerWidth < 768 ? -10 : -20;
 
     if (isAnchor) {
       e.preventDefault();
-      
       if (location.pathname !== "/") {
-        // If on /login or /book, go home first, then scroll
         navigate("/");
-        // Small delay to ensure the Home component has mounted before scrolling
         setTimeout(() => {
           lenis?.scrollTo(path, { offset: scrollOffset, duration: 1.5 });
         }, 150);
       } else {
-        // Already home, just scroll smoothly
         lenis?.scrollTo(path, { offset: scrollOffset, duration: 1.5 });
       }
     } else if (path === "/") {
-      // Home button logic: always scroll to absolute top
       e.preventDefault();
       if (location.pathname !== "/") {
         navigate("/");
@@ -73,12 +67,13 @@ const Navbar = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <>
+            {/* REMOVED backdrop-blur-xl - using standard opacity for speed */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMenuOpen(false)}
-              className="fixed inset-0 z-150 bg-black/60 backdrop-blur-xl md:hidden"
+              className="fixed inset-0 z-150 bg-black/80 md:hidden"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -95,9 +90,10 @@ const Navbar = () => {
                     <motion.li key={item.name} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                       <button
                         onClick={(e) => handleNavClick(e, item.path)}
-                        className="w-full flex items-center gap-4 rounded-2xl bg-white/10 p-3 text-base font-black uppercase tracking-widest text-white backdrop-blur-md active:scale-95 transition-all"
+                        // REMOVED backdrop-blur-md
+                        className="w-full flex items-center gap-4 rounded-2xl bg-white/10 p-3 text-base font-black uppercase tracking-widest text-white active:scale-95 transition-all"
                       >
-                        <span className="flex size-10 items-center justify-center rounded-xl bg-white/10 text-lg">
+                        <span className="flex size-10 items-center justify-center rounded-xl bg-white/15 text-lg">
                           {item.icon}
                         </span>
                         {item.name}
@@ -119,8 +115,8 @@ const Navbar = () => {
 
       <header className="fixed inset-x-0 top-4 z-200 md:top-8">
         <div className="mx-4 max-w-6xl md:mx-auto">
-          <nav className="relative flex h-14 items-center justify-between rounded-full bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] px-4 shadow-2xl md:h-20 md:px-8 border border-white/10">
-            {/* Logo Links to home and scrolls to top */}
+          {/* REMOVED backdrop-blur from nav container */}
+          <nav className="relative flex h-14 items-center justify-between rounded-full bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] px-4 shadow-2xl md:h-20 md:px-8 border border-white/20">
             <button onClick={(e) => handleNavClick(e, "/")} className="group relative z-210 flex items-center gap-3 cursor-pointer">
               <img src={logoImg} alt="Logo" className="h-12 w-12 md:h-16 md:w-16 object-contain" />
               <span className="text-lg font-black text-white md:text-xl tracking-tighter uppercase">Benny Events</span>
@@ -139,7 +135,8 @@ const Navbar = () => {
             </div>
 
             <div className="relative z-210 flex items-center gap-2">
-              <Link to="/login" className="hidden md:grid size-12 place-items-center rounded-full bg-white/20 backdrop-blur-md text-white border border-white/10 overflow-hidden hover:bg-white hover:text-red-700 transition-all">
+              {/* REMOVED backdrop-blur-md from profile circle */}
+              <Link to="/login" className="hidden md:grid size-12 place-items-center rounded-full bg-white/20 text-white border border-white/20 overflow-hidden hover:bg-white hover:text-red-700 transition-all">
                 {user?.photoURL ? <img src={user.photoURL} className="size-full object-cover" alt="Profile" /> : <RiUser3Fill />}
               </Link>
               <div className="md:hidden">
