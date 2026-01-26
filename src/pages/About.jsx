@@ -29,14 +29,15 @@ const About = () => {
       <div className="absolute top-[10%] left-[-10%] w-75 h-75 md:w-175 md:h-175 rounded-full bg-red-50/50 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[10%] right-[-10%] w-62.5 h-62.5 md:w-150 md:h-150 rounded-full bg-slate-200/40 blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
         {/* HEADER SECTION - REVERSES ON SCROLL UP */}
-        <div className="mb-12 md:mb-20 flex flex-col items-center overflow-hidden">
+        {/* Added overflow-hidden to prevent horizontal scroll on mobile entry */}
+        <div className="mb-12 md:mb-20 flex flex-col items-center overflow-hidden py-2">
           {/* Subtitle - Center Fade */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.2 }} // Triggers easily
+            viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="flex flex-col items-center"
           >
@@ -49,31 +50,31 @@ const About = () => {
             </div>
           </motion.div>
 
-          {/* Main Title - Split Animation that reverses */}
-          <h2 className="flex flex-wrap justify-center gap-x-4 text-4xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] sm:text-5xl md:text-6xl lg:text-7xl text-center">
-            {/* Left Side: Crafting (Comes from Left) */}
+          {/* Main Title - Split Animation */}
+          <h2 className="flex flex-wrap justify-center gap-x-3 sm:gap-x-4 text-4xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] sm:text-5xl md:text-6xl lg:text-7xl text-center">
+            {/* Left Side: Crafting (Using percentages for mobile safety) */}
             <motion.span
-              initial={{ opacity: 0, x: -150 }}
+              initial={{ opacity: 0, x: "-50%" }} // Changed from -150 to -50%
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: false, amount: 0.4 }}
               transition={{
                 duration: 0.9,
-                ease: [0.16, 1, 0.3, 1], // Custom luxury cubic-bezier
+                ease: [0.16, 1, 0.3, 1],
               }}
               className="inline-block"
             >
               Crafting
             </motion.span>
 
-            {/* Right Side: Legacy (Comes from Right) */}
+            {/* Right Side: Legacy */}
             <motion.span
-              initial={{ opacity: 0, x: 150 }}
+              initial={{ opacity: 0, x: "50%" }} // Changed from 150 to 50%
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: false, amount: 0.4 }}
               transition={{
                 duration: 0.9,
                 ease: [0.16, 1, 0.3, 1],
-                delay: 0.05, // Tiny stagger for a more dynamic feel
+                delay: 0.1,
               }}
               className="text-red-700 italic inline-block"
             >

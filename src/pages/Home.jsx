@@ -67,8 +67,8 @@ const Home = () => {
       </section>
 
       {/* --- STATS BAR --- */}
-      <section className="relative z-10 px-6 max-w-5xl w-full mx-auto py-10 mt-10 border-t border-black/5">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 md:gap-12 text-center">
+      <section className="relative z-10 px-10 max-w-4xl mx-auto mt-10 border-t border-black/5">
+        <div className="grid grid-cols-2 gap-y-10 gap-x-6 md:gap-12 text-center">
           {stats.map((stat, i) => (
             <div
               key={i}

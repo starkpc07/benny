@@ -15,18 +15,20 @@ const ServiceCard = ({ service }) => {
 
   const { scrollYProgress } = useScroll({
     target: cardRef,
-    offset: ["start 95%", "end 30%"],
+    // Start at 100% (bottom of screen), finish settle at 85%
+    offset: ["start 100%", "start 85%"],
   });
 
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 80,
+    stiffness: 90,
     damping: 20,
     restDelta: 0.001,
   });
 
+  // Linear mapping from 0 to 1 removes the "whitish" lag
   const y = useTransform(smoothProgress, [0, 1], [40, 0]);
-  const opacity = useTransform(smoothProgress, [0, 0.4], [0, 1]);
-  const scale = useTransform(smoothProgress, [0, 0.4], [0.95, 1]);
+  const opacity = useTransform(smoothProgress, [0, 1], [0, 1]);
+  const scale = useTransform(smoothProgress, [0, 1], [0.95, 1]);
 
   return (
     <div className="perspective-distant h-40 sm:h-48 md:h-56 will-change-[transform,opacity]">
@@ -38,7 +40,6 @@ const ServiceCard = ({ service }) => {
           scale,
           transformStyle: "preserve-3d",
         }}
-        initial={false} // Prevents initial animation on mount
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{
           duration: 0.6,
@@ -52,16 +53,16 @@ const ServiceCard = ({ service }) => {
           setIsFlipped(!isFlipped);
         }}
       >
-        {/* FRONT SIDE (IMAGE) - Higher Z-index when not flipped */}
+        {/* FRONT SIDE */}
         <div
           className={`absolute inset-0 ${isFlipped ? 'z-0' : 'z-20'}`}
           style={{
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
-            transform: "rotateY(0deg)", // Force front to stay flat
+            transform: "rotateY(0deg)",
           }}
         >
-          <div className="group relative h-full w-full overflow-hidden rounded-3xl shadow-xl sm:rounded-4xl bg-zinc-800">
+          <div className="group relative h-full w-full overflow-hidden rounded-3xl shadow-xl sm:rounded-4xl">
             <img
               src={service.image}
               alt={service.title}
@@ -79,18 +80,17 @@ const ServiceCard = ({ service }) => {
           </div>
         </div>
 
-        {/* BACK SIDE (DETAILS) - Only visible when parent is rotated */}
+        {/* BACK SIDE */}
         <div
           className={`absolute inset-0 ${isFlipped ? 'z-20' : 'z-0'}`}
           style={{
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
-            transform: "rotateY(180deg)", // Mirrors the back initially so it flips correctly
+            transform: "rotateY(180deg)",
           }}
         >
           <div className="flex h-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-red-600/30 bg-zinc-950 p-4 sm:p-6 text-center shadow-2xl sm:rounded-4xl transform-gpu">
             <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-red-600/10 blur-2xl pointer-events-none" />
-            
             <div className="relative z-10 w-full">
               <h3 className="mb-2 text-sm font-black uppercase tracking-tighter text-white sm:text-lg md:text-xl">
                 {service.title}
@@ -106,7 +106,6 @@ const ServiceCard = ({ service }) => {
   );
 };
 
-// The Events component remains the same as before...
 const Events = () => {
   const services = [
     { title: "Wedding Events", icon: <RiHeartsFill />, image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800", description: "Expert planning for all wedding styles, from traditional South Indian ceremonies to grand destination weddings." },
@@ -119,7 +118,7 @@ const Events = () => {
 
   return (
     <section id="events" className="relative overflow-hidden px-4 pt-24 pb-10 sm:px-6 md:pt-32 md:pb-16">
-      <div className="absolute top-0 left-1/2 h-150 w-150 -translate-x-1/2 rounded-full bg-red-100/20 blur-[100px] pointer-events-none transform-gpu" />
+      <div className="absolute top-0 left-1/2 h-150 w-150 -translate-x-1/2 rounded-full bg-red-50/30 pointer-events-none transform-gpu" />
 
       <div className="relative z-10 mx-auto max-w-5xl">
         <div className="mb-10 flex flex-col items-center text-center">
