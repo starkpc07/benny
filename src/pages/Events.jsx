@@ -50,23 +50,29 @@ const ServiceCard = ({ service }) => {
       >
         {/* FRONT SIDE */}
         <div
-          className="absolute inset-0 z-10 backface-hidden"
-          style={{ backfaceVisibility: "hidden" }}
+          className="absolute inset-0 z-10"
+          style={{
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+          }}
         >
-          <div className="group relative h-full w-full overflow-hidden rounded-3xl bg-zinc-900 shadow-xl sm:rounded-4xl">
+          <div className="group relative h-full w-full overflow-hidden rounded-3xl bg-zinc-200 shadow-xl sm:rounded-4xl">
+            {/* Image with improved visibility */}
             <img
               src={service.image}
               alt={service.title}
               className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
             />
-            <div className="absolute inset-0 bg-black/60" />
-            <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent" />
+
+            {/* Lightened Overlays */}
+            <div className="absolute inset-0 bg-black/20 transition-opacity group-hover:bg-black/10" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" />
 
             <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-8">
-              <div className="mb-1 text-xl text-red-600 sm:mb-2 sm:text-4xl">
+              <div className="mb-1 text-xl text-red-500 drop-shadow-md sm:mb-2 sm:text-4xl">
                 {service.icon}
               </div>
-              <h3 className="text-lg font-black uppercase leading-[0.9] tracking-tighter text-white sm:text-2xl md:text-3xl">
+              <h3 className="text-lg font-black uppercase leading-[0.9] tracking-tighter text-white drop-shadow-lg sm:text-2xl md:text-3xl">
                 {service.title}
               </h3>
             </div>
@@ -78,20 +84,21 @@ const ServiceCard = ({ service }) => {
           className="absolute inset-0 z-20 h-full w-full"
           style={{
             backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
             transform: "rotateY(180deg) translateZ(1px)",
           }}
         >
-          <div className="flex h-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-red-600/20 bg-zinc-950 p-6 text-center shadow-2xl sm:rounded-4xl">
+          <div className="flex h-full flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-red-600/30 bg-zinc-950 p-6 text-center shadow-2xl sm:rounded-4xl">
             <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-red-600/10 blur-3xl" />
 
             <div className="relative z-10">
-              <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-xl bg-red-600/10 text-2xl text-red-600 sm:size-14 sm:rounded-2xl sm:text-3xl">
+              <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-xl bg-red-600/20 text-2xl text-red-500 sm:size-14 sm:rounded-2xl sm:text-3xl">
                 {service.icon}
               </div>
               <h3 className="mb-2 text-base font-black uppercase tracking-tighter text-white sm:text-xl md:text-2xl">
                 {service.title}
               </h3>
-              <p className="line-clamp-4 text-[11px] leading-relaxed text-zinc-300 sm:text-sm md:text-base">
+              <p className="line-clamp-6 text-[11px] leading-relaxed text-zinc-300 sm:text-sm md:text-base">
                 {service.description}
               </p>
             </div>
@@ -132,7 +139,7 @@ const Events = () => {
       title: "Birthday Parties",
       icon: <RiCake3Fill />,
       image:
-        "https://images.unsplash.com/photo-1530103043960-ef38714abb15?auto=format&fit=crop&q=80&w=800",
+        "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?auto=format&fit=crop&q=80&w=800", // New Birthday Image
       description:
         "Bringing joy to creative themes, vibrant balloons, and custom cakes. From first birthdays to milestone celebrations, we turn simple moments into lasting family memories.",
     },
@@ -140,7 +147,7 @@ const Events = () => {
       title: "Stage & Sound",
       icon: <RiMicFill />,
       image:
-        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800",
+        "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800",
       description:
         "State-of-the-art acoustics and dynamic lighting rigs. Our technical team ensures crystal-clear audio and concert-quality visual effects for performances and speeches alike.",
     },
@@ -161,13 +168,12 @@ const Events = () => {
     >
       <div className="absolute top-0 left-1/2 h-150 w-150 -translate-x-1/2 rounded-full bg-red-100/20 blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 mx-auto max-w-5xl">
-        {/* ANIMATED HEADER SECTION */}
+      <div className="relative z-10 mx-auto max-w-6xl">
         <div className="mb-10 flex flex-col items-center text-center">
           <motion.div
-            initial={{ opacity: 0, y: 100 }}
+            initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center"
           >

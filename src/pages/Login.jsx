@@ -100,7 +100,7 @@ const Login = () => {
               className="w-full bg-white rounded-[2.5rem] shadow-[0_30px_70px_-20px_rgba(0,0,0,0.15)] flex flex-col md:flex-row overflow-hidden border border-zinc-100"
             >
               {/* LEFT SIDE: BRANDING */}
-              <div className="hidden md:flex w-[40%] bg-gradient-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] p-10 flex-col justify-between text-white relative">
+              <div className="hidden md:flex w-[40%] bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] p-10 flex-col justify-between text-white relative">
                 <div className="absolute inset-0 bg-black/5" />
                 <div className="relative z-10">
                   <h2 className="text-3xl font-black uppercase tracking-tighter leading-none mb-3">
@@ -118,7 +118,7 @@ const Login = () => {
               </div>
 
               {/* RIGHT SIDE: FORMS */}
-              <div className="w-full md:w-[60%] p-8 md:p-12 min-h-[500px] flex flex-col justify-center">
+              <div className="w-full md:w-[60%] p-8 md:p-12 min-h-125 flex flex-col justify-center">
                 
                 <AnimatePresence mode="wait">
                   {step === 1 ? (
@@ -175,7 +175,7 @@ const Login = () => {
                     >
                       <button 
                         onClick={() => setStep(1)}
-                        className="mb-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#8B0000] hover:translate-x-[-4px] transition-transform"
+                        className="mb-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#8B0000] hover:-translate-x-1 transition-transform"
                       >
                         <RiArrowLeftLine /> Back to Social
                       </button>
@@ -228,7 +228,7 @@ const Login = () => {
                         <button 
                           type="submit" 
                           disabled={isSubmitting}
-                          className="w-full py-4 bg-gradient-to-r from-[#8B0000] to-[#FF8C00] text-white hover:brightness-110 disabled:opacity-50 rounded-xl font-black uppercase text-[11px] tracking-[0.2em] transition-all active:scale-[0.98] flex justify-center items-center mt-4 shadow-lg shadow-red-900/10"
+                          className="w-full py-4 bg-linear-to-r from-[#8B0000] to-[#FF8C00] text-white hover:brightness-110 disabled:opacity-50 rounded-xl font-black uppercase text-[11px] tracking-[0.2em] transition-all active:scale-[0.98] flex justify-center items-center mt-4 shadow-lg shadow-red-900/10"
                         >
                           {isSubmitting ? (
                             <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -251,7 +251,7 @@ const Login = () => {
           >
             <div className="flex flex-col items-center text-center">
               <div className="relative mb-6">
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#8B0000] to-[#FF8C00] rounded-full blur-xl opacity-20" />
+                <div className="absolute inset-0 bg-linear-to-tr from-[#8B0000] to-[#FF8C00] rounded-full blur-xl opacity-20" />
                 <img 
                   src={user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} 
                   className="size-24 rounded-full border-4 border-white shadow-xl relative z-10 object-cover" 
