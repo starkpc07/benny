@@ -66,11 +66,15 @@ const Stalls = () => {
           }}
           className="flex flex-col items-center gap-2"
         >
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">
-            The Experience
-          </span>
+          <div className="mb-3 flex items-center gap-3">
+              <span className="h-px w-6 bg-red-600" />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">
+                Specialized
+              </span>
+              <span className="h-px w-6 bg-red-600" />
+            </div>
           <h2 className="text-3xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] sm:text-4xl md:text-5xl lg:text-6xl">
-            Add-ons <span className="text-red-700 italic">Stall</span>
+            <span className="text-red-700 italic">Stalls</span>
           </h2>
         </motion.div>
       </div>

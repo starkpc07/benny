@@ -7,8 +7,8 @@ const Home = () => {
   const navigate = useNavigate(); // 2. Initialize Navigate
 
   const stats = [
-    { label: "Successful Events", val: "1000+" },
-    { label: "Years of Excellence", val: "12+" },
+    { label: "Successful Events", val: "65000+" },
+    { label: "Years of Excellence", val: "40+" },
     { label: "South India Presence", val: "All Over" },
     { label: "Service Quality", val: "Premium" },
   ];
@@ -33,20 +33,22 @@ const Home = () => {
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-[12vw] sm:text-[10vw] lg:text-[7.5rem] xl:text-[8.5rem] font-black leading-[0.85] tracking-tighter mb-8"
+            className="text-center text-[10vw] sm:text-[8vw] lg:text-[6.5rem] xl:text-[7.5rem] font-black leading-[0.85] tracking-tighter mb-8"
           >
-            <span className="text-[#0f172a] drop-shadow-sm">Benny Events</span>
+            <span className="text-[#0f172a] block">Benny Events</span>
+            <span className="text-red-700">&</span>
+            <span className="text-[#0f172a]"> Catering</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-base md:text-xl lg:text-2xl text-zinc-500 mb-10 max-w-3xl font-light uppercase tracking-[0.3em] leading-relaxed"
+            className="text-center text-sm md:text-lg lg:text-xl text-zinc-500 mb-10 max-w-4xl font-light uppercase tracking-[0.4em] leading-relaxed"
           >
-            The Art of{" "}
-            <span className="text-red-700 font-bold">Unforgettable</span>{" "}
-            Occasions
+            Crafting{" "}
+            <span className="text-zinc-800 font-bold">Exquisite Flavors</span> &
+            <span className="text-red-700 font-bold"> Iconic Moments</span>
           </motion.p>
 
           <div className="flex items-center justify-center gap-6 w-full sm:w-auto">
