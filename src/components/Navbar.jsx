@@ -113,7 +113,7 @@ const Navbar = () => {
 
       <header className="fixed inset-x-0 top-4 z-200 md:top-8">
         {/* lg:px-[7px] added as requested */}
-        <div className="mx-4 max-w-6xl lg:px-[7px] md:mx-auto">
+        <div className="mx-4 max-w-6xl lg:px-1.75 md:mx-auto">
           {/* will-change-transform and transform-gpu force hardware acceleration to stop throttling */}
           <nav className="relative flex h-14 items-center justify-between rounded-full bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] px-4 shadow-2xl md:h-20 md:px-8 border border-white/20 will-change-transform transform-gpu">
             <button onClick={(e) => handleNavClick(e, "/")} className="group relative z-210 flex items-center gap-3 cursor-pointer">
