@@ -37,7 +37,7 @@ const Contact = () => {
   ];
 
   return (
-    <section id="contact" className="relative w-full bg-[#FAF9F6] py-12 md:py-36 overflow-hidden selection:bg-red-600 selection:text-white">
+    <section id="contact" className="relative w-full py-12 md:py-36 overflow-hidden selection:bg-red-600 selection:text-white">
       
       {/* ATMOSPHERIC BLURS - Reduced size */}
       <div className="absolute top-[-5%] right-[-5%] size-64 md:size-96 rounded-full bg-slate-200/30 blur-[80px] pointer-events-none" />

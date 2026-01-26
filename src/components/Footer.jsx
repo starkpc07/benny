@@ -11,7 +11,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="w-full bg-[#FAF9F6] border-t border-black/5 py-12">
+    <footer className="w-full border-t border-black/5 py-12">
       <div className="max-w-5xl mx-auto px-6 flex flex-col items-center">
         
         {/* LOGO OR BRAND NAME */}

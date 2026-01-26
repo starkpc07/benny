@@ -23,7 +23,7 @@ const About = () => {
   return (
     <section
       id="about"
-      className="relative w-full bg-[#FAF9F6] py-20 md:py-32 overflow-hidden selection:bg-red-600 selection:text-white"
+      className="relative w-full py-20 md:py-32 overflow-hidden selection:bg-red-600 selection:text-white"
     >
       {/* ATMOSPHERIC LAYERS */}
       <div className="absolute top-[10%] left-[-10%] w-75 h-75 md:w-175 md:h-175 rounded-full bg-red-50/50 blur-[120px] pointer-events-none" />

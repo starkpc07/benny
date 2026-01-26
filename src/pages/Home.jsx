@@ -20,7 +20,7 @@ const Home = () => {
   };
 
   return (
-    <main className="relative w-full bg-[#FAF9F6] text-black pt-32 md:pt-46 overflow-hidden flex flex-col items-center selection:bg-red-600 selection:text-white">
+    <main className="relative w-full text-black pt-32 md:pt-46 overflow-hidden flex flex-col items-center selection:bg-red-600 selection:text-white">
       {/* ATMOSPHERIC LAYERS */}
       <div className="absolute top-[-5%] right-[-5%] size-75 md:size-200 rounded-full bg-slate-200/40 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-[-5%] left-[-5%] size-62.5 md:size-150 rounded-full bg-red-50/30 blur-[80px] pointer-events-none" />

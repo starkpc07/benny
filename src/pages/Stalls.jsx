@@ -51,7 +51,7 @@ const Stalls = () => {
   };
 
   return (
-    <section className="bg-[#FAF9F6] py-16 md:py-24 overflow-hidden selection:bg-red-600 selection:text-white">
+    <section className="py-16 md:py-24 overflow-hidden selection:bg-red-600 selection:text-white">
       
       {/* HEADER SECTION - ANIMATES EVERY TIME YOU SCROLL UP OR DOWN */}
       <div className="max-w-7xl mx-auto px-6 text-center mb-12 md:mb-20">
