@@ -32,7 +32,6 @@ const Navbar = () => {
     const isAnchor = path.startsWith("#");
     setIsMenuOpen(false);
 
-    // Dynamic offset: small gap for mobile, slightly more for desktop
     const scrollOffset = window.innerWidth < 768 ? -10 : -20;
 
     if (isAnchor) {
@@ -40,10 +39,10 @@ const Navbar = () => {
       if (location.pathname !== "/") {
         navigate("/");
         setTimeout(() => {
-          lenis?.scrollTo(path, { offset: scrollOffset, duration: 1.5 });
+          lenis?.scrollTo(path, { offset: scrollOffset, duration: 1.2 });
         }, 150);
       } else {
-        lenis?.scrollTo(path, { offset: scrollOffset, duration: 1.5 });
+        lenis?.scrollTo(path, { offset: scrollOffset, duration: 1.2 });
       }
     } else if (path === "/") {
       e.preventDefault();
@@ -67,7 +66,6 @@ const Navbar = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <>
-            {/* REMOVED backdrop-blur-xl - using standard opacity for speed */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -79,7 +77,8 @@ const Navbar = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="fixed inset-x-4 top-24 bottom-6 z-160 rounded-[2.5rem] bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#B22222] shadow-2xl md:hidden overflow-hidden"
+              // will-change-transform + translate-z-0 prevents mobile stutter
+              className="fixed inset-x-4 top-24 bottom-6 z-160 rounded-[2.5rem] bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#B22222] shadow-2xl md:hidden overflow-hidden will-change-transform translate-z-0"
             >
               <div className="flex h-full flex-col justify-between p-6">
                 <div className="text-center pt-2">
@@ -90,7 +89,6 @@ const Navbar = () => {
                     <motion.li key={item.name} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                       <button
                         onClick={(e) => handleNavClick(e, item.path)}
-                        // REMOVED backdrop-blur-md
                         className="w-full flex items-center gap-4 rounded-2xl bg-white/10 p-3 text-base font-black uppercase tracking-widest text-white active:scale-95 transition-all"
                       >
                         <span className="flex size-10 items-center justify-center rounded-xl bg-white/15 text-lg">
@@ -114,9 +112,10 @@ const Navbar = () => {
       </AnimatePresence>
 
       <header className="fixed inset-x-0 top-4 z-200 md:top-8">
-        <div className="mx-4 max-w-6xl md:mx-auto">
-          {/* REMOVED backdrop-blur from nav container */}
-          <nav className="relative flex h-14 items-center justify-between rounded-full bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] px-4 shadow-2xl md:h-20 md:px-8 border border-white/20">
+        {/* lg:px-[7px] added as requested */}
+        <div className="mx-4 max-w-6xl lg:px-[7px] md:mx-auto">
+          {/* will-change-transform and transform-gpu force hardware acceleration to stop throttling */}
+          <nav className="relative flex h-14 items-center justify-between rounded-full bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] px-4 shadow-2xl md:h-20 md:px-8 border border-white/20 will-change-transform transform-gpu">
             <button onClick={(e) => handleNavClick(e, "/")} className="group relative z-210 flex items-center gap-3 cursor-pointer">
               <img src={logoImg} alt="Logo" className="h-12 w-12 md:h-16 md:w-16 object-contain" />
               <span className="text-lg font-black text-white md:text-xl tracking-tighter uppercase">Benny Events</span>
@@ -135,7 +134,6 @@ const Navbar = () => {
             </div>
 
             <div className="relative z-210 flex items-center gap-2">
-              {/* REMOVED backdrop-blur-md from profile circle */}
               <Link to="/login" className="hidden md:grid size-12 place-items-center rounded-full bg-white/20 text-white border border-white/20 overflow-hidden hover:bg-white hover:text-red-700 transition-all">
                 {user?.photoURL ? <img src={user.photoURL} className="size-full object-cover" alt="Profile" /> : <RiUser3Fill />}
               </Link>
