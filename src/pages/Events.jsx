@@ -164,7 +164,7 @@ const Events = () => {
   return (
     <section
       id="events"
-      className="relative overflow-hidden px-4 pt-16 pb-10 sm:px-6 md:pt-32 md:pb-16"
+      className="relative overflow-hidden px-4 pt-24 pb-10 sm:px-6 md:pt-32 md:pb-16"
     >
       <div className="absolute top-0 left-1/2 h-150 w-150 -translate-x-1/2 rounded-full bg-red-100/20 blur-[100px] pointer-events-none" />
 
