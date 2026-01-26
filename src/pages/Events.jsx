@@ -21,8 +21,8 @@ const ServiceCard = ({ service }) => {
 
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: 90,
-    damping: 20,
-    restDelta: 0.001,
+    damping: 10,
+    restDelta: 0.002,
   });
 
   // Linear mapping from 0 to 1 removes the "whitish" lag
