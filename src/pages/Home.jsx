@@ -55,11 +55,11 @@ const Home = () => {
             {/* 4. BUTTON WITH SCROLL LOGIC */}
             <button
               onClick={handleBookClick}
-              className="group relative w-full sm:w-auto overflow-hidden py-5 px-10 rounded-full font-black uppercase text-[10px] tracking-[0.2em] text-white shadow-2xl transition-all active:scale-95 flex justify-center items-center gap-3 cursor-pointer"
+              className="group relative w-full sm:w-auto overflow-hidden py-3 px-7 rounded-full font-black uppercase text-[18px] tracking-[0.2em] text-white shadow-2xl transition-all active:scale-95 flex justify-center items-center gap-3 cursor-pointer"
             >
               <div className="absolute inset-0 bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] bg-size-[200%_100%] transition-all duration-700 group-hover:bg-position-[100%_0%]" />
               <span className="relative flex items-center justify-center gap-3">
-                Book Events <RiCalendarCheckLine className="text-xl" />
+                Book Events <RiCalendarCheckLine className="text-3xl" />
               </span>
             </button>
           </div>

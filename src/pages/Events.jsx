@@ -29,7 +29,7 @@ const ServiceCard = ({ service }) => {
   const scale = useTransform(smoothProgress, [0, 0.5], [0.95, 1]);
 
   return (
-    <div className="perspective-distant h-60 sm:h-80 md:h-112.5">
+    <div className="perspective-distant h-30 md:h-60">
       <motion.div
         ref={cardRef}
         style={{
@@ -91,9 +91,6 @@ const ServiceCard = ({ service }) => {
             <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-red-600/10 blur-3xl" />
 
             <div className="relative z-10">
-              <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-xl bg-red-600/20 text-2xl text-red-500 sm:size-14 sm:rounded-2xl sm:text-3xl">
-                {service.icon}
-              </div>
               <h3 className="mb-2 text-base font-black uppercase tracking-tighter text-white sm:text-xl md:text-2xl">
                 {service.title}
               </h3>
@@ -167,7 +164,7 @@ const Events = () => {
     >
       <div className="absolute top-0 left-1/2 h-150 w-150 -translate-x-1/2 rounded-full bg-red-100/20 blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 mx-auto max-w-6xl">
+      <div className="relative z-10 mx-auto max-w-5xl">
         <div className="mb-10 flex flex-col items-center text-center">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
