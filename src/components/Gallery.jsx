@@ -98,7 +98,7 @@ export default function Gallery() {
 
   return (
     <section className="relative w-full overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6 py-12 text-center">
+      <div className="max-w-6xl mx-auto px-6 py-6 text-center">
         <div className="flex flex-col items-center gap-2">
           <div className="flex items-center gap-3 text-red-600">
             <span className="h-px w-6 bg-current" />
