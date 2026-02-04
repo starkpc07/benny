@@ -5,29 +5,30 @@ import {
   RiArrowRightSLine,
   RiExpandLeftRightLine,
 } from "react-icons/ri";
-import popImg from "../assets/pop.webp";
-import PappadImg from "../assets/pappad.webp";
-import jigarImg from "../assets/jigar.webp";
-import candyImg from "../assets/candy.webp";
-import cauliImg from "../assets/cauli.webp";
-import spiralImg from "../assets/spiral.webp";
-import saladImg from "../assets/salad.webp";
-import beedaImg from "../assets/beeda.webp";
-import iceImg from "../assets/ice.webp";
-import paaniImg from "../assets/paani.webp";
-import sugarImg from "../assets/sugar.webp";
+import popImg from "../assets/stalls/pop.webp";
+import PappadImg from "../assets/stalls/pappad.webp";
+import jigarImg from "../assets/stalls/jigar.webp";
+import candyImg from "../assets/stalls/candy.webp";
+import cauliImg from "../assets/stalls/cauli.webp";
+import spiralImg from "../assets/stalls/spiral.webp";
+import saladImg from "../assets/stalls/salad.webp";
+import beedaImg from "../assets/stalls/beeda.webp";
+import iceImg from "../assets/stalls/ice.webp";
+import paaniImg from "../assets/stalls/paani.webp";
+import sugarImg from "../assets/stalls/sugar.webp";
 
 const stallsData = [
   { id: 1, title: "Popcorn", image: popImg },
   { id: 2, title: "Delhi Pappad", image: PappadImg },
   { id: 3, title: "Cotton Candy", image: candyImg },
   { id: 4, title: "Cauliflower 65", image: cauliImg },
-  { id: 5, title: "Spiral Potato & French fries", image: spiralImg },
+  { id: 5, title: "Spiral Potato & French Fries", image: spiralImg },
   { id: 6, title: "Jigarthanda", image: jigarImg },
   { id: 7, title: "Fruit Salad", image: saladImg },
   { id: 8, title: "Sweet Beeda", image: beedaImg },
   { id: 9, title: "Sugar Cane Juice", image: sugarImg },
-  { id: 10, title: "Ice cream", image: iceImg },
+  { id: 10, title: "Paani & Masala Poori", image: paaniImg },
+  { id: 11, title: "Ice cream", image: iceImg },
 ];
 
 const Stalls = () => {
@@ -104,7 +105,7 @@ const Stalls = () => {
         </motion.div>
       </div>
 
-      <div className="relative max-w-350 mx-auto flex items-center justify-center px-4 md:px-12">
+      <div className="relative max-w-250 mx-auto flex items-center justify-center px-4 md:px-12">
         {/* DESKTOP LEFT ARROW */}
         <div className="hidden md:block absolute left-4 lg:left-10 z-30">
           <motion.button

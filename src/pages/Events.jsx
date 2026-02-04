@@ -28,7 +28,6 @@ const ServiceCard = ({ service }) => {
   // Linear mapping from 0 to 1 removes the "whitish" lag
   const y = useTransform(smoothProgress, [0, 1], [40, 0]);
   const opacity = useTransform(smoothProgress, [0, 1], [0, 1]);
-  const scale = useTransform(smoothProgress, [0, 1], [0.95, 1]);
 
   return (
     <div className="perspective-distant h-40 sm:h-48 md:h-56 will-change-[transform,opacity]">
@@ -37,7 +36,6 @@ const ServiceCard = ({ service }) => {
         style={{
           y,
           opacity,
-          scale,
           transformStyle: "preserve-3d",
         }}
         animate={{ rotateY: isFlipped ? 180 : 0 }}
@@ -66,7 +64,7 @@ const ServiceCard = ({ service }) => {
             <img
               src={service.image}
               alt={service.title}
-              className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
+              className="h-full w-full object-cover transition-transform duration-1000"
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">

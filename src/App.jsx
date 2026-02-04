@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
-// Update this specific line:
 import { ReactLenis } from 'lenis/react'; 
 
 import Navbar from "./components/Navbar";
@@ -10,14 +9,24 @@ import Events from "./pages/Events";
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Stalls from './pages/Stalls';
+import Gallery from './components/Gallery';
 import Login from './pages/Login';
 import Book from './pages/Book';
 import Background from './components/Background'; 
 
 const App = () => {
   return (
-    // 'root' prop is essential for global smooth scrolling
-    <ReactLenis root options={{ lerp: 0.1, duration: 1.2 }}>
+    <ReactLenis 
+      root 
+      options={{ 
+        lerp: 0.08, 
+        duration: 1.2, 
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 1.5,
+        infinite: false 
+      }}
+    >
       <div className="relative min-h-screen w-full overflow-x-hidden">
         <Background />
         
@@ -29,10 +38,11 @@ const App = () => {
               <Route path="/" element={
                 <div className="bg-transparent">
                   <Home />
-                  <div id="events"><Events /></div>
-                  <div id="stalls"><Stalls /></div>
-                  <div id="about"><About /></div>
-                  <div id="contact"><Contact /></div>
+                  <section id="events"><Events /></section>
+                  <section id="stalls"><Stalls /></section>
+                  <section id="gallery"><Gallery /></section>
+                  <section id="about"><About /></section>
+                  <section id="contact"><Contact /></section>
                 </div>
               } />
               <Route path="/login" element={<Login />} />
