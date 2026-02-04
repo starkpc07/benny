@@ -29,12 +29,14 @@ function ScrollingRow({ images, direction = "left", speed = 0.5, size }) {
   const setWidth = images.length * (size.width + size.gap);
 
   const x = useTransform(baseX, (v) => {
-    // Infinite loop math
+    // Standard modulo doesn't handle negatives well for infinite loops, 
+    // this formula ensures it stays within the bounds of the first set
     const wrappedX = ((v % setWidth) - setWidth) % setWidth;
     return wrappedX;
   });
 
   useAnimationFrame((t, delta) => {
+    // Only auto-scroll if the user isn't actively touching/dragging
     if (!isDragging.current) {
       const moveBy = speed * (delta / 16);
       if (direction === "left") {
@@ -46,25 +48,34 @@ function ScrollingRow({ images, direction = "left", speed = 0.5, size }) {
   });
 
   return (
-    <div className="relative overflow-visible py-4 select-none" style={{ touchAction: "pan-y" }}>
+    <div 
+      className="relative overflow-visible py-4 select-none" 
+      // CRITICAL: pan-y allows the page to scroll vertically while 
+      // the component handles horizontal dragging
+      style={{ touchAction: "pan-y" }}
+    >
       <motion.div
         drag="x"
+        dragElastic={0.05} // Low elasticity prevents "jumping" on touch
         style={{ x }}
         onDragStart={() => (isDragging.current = true)}
         onDrag={(e, info) => {
+          // Sync the base value with the drag movement
           baseX.set(baseX.get() + info.delta.x);
         }}
         onDragEnd={(e, info) => {
           isDragging.current = false;
-          animate(baseX, baseX.get() + info.velocity.x * 0.5, {
+          // Add smooth momentum after release
+          const momentum = info.velocity.x * 0.15;
+          animate(baseX, baseX.get() + momentum, {
             type: "spring",
-            stiffness: 30,
+            stiffness: 40,
             damping: 25,
           });
         }}
         className="flex flex-row items-center cursor-grab active:cursor-grabbing w-max"
       >
-        {/* Render 4 sets to ensure no gaps even on wide screens or fast drags */}
+        {/* Quadruple images to ensure no gaps ever appear during fast dragging */}
         {[...images, ...images, ...images, ...images].map((img, i) => {
           const imagePath = img.asset?.src || img.asset;
           
@@ -79,7 +90,7 @@ function ScrollingRow({ images, direction = "left", speed = 0.5, size }) {
                 backgroundImage: `url(${imagePath})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                pointerEvents: "none" 
+                pointerEvents: "none" // Prevents the image from being "picked up" by the browser
               }}
             />
           );
@@ -105,11 +116,11 @@ export default function Gallery() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const row1 = GALLERY_IMAGES.slice(0, 3);
-  const row2 = GALLERY_IMAGES.slice(4, 7);
+  const row1 = GALLERY_IMAGES.slice(0, 4);
+  const row2 = GALLERY_IMAGES.slice(3, 7);
 
   return (
-    <section className="relative w-full py-16 overflow-hidden">
+    <section className="relative w-full py-16 overflow-hidden bg-white">
       {/* Header section */}
       <div className="max-w-6xl mx-auto px-6 text-center mb-12">
         <div className="flex flex-col items-center gap-2">
@@ -124,8 +135,8 @@ export default function Gallery() {
         </div>
       </div>
 
-      {/* FIXED: Container set to max-w-5xl. 
-          overflow-hidden here ensures images don't spill into the page margins.
+      {/* The outer container controls the width (max-w-5xl).
+         The inner ScrollingRow allows the content to loop infinitely inside that area.
       */}
       <div className="max-w-5xl mx-auto px-4 overflow-hidden flex flex-col gap-4">
         <ScrollingRow images={row1} direction="left" speed={1.2} size={size} />
