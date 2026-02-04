@@ -11,61 +11,61 @@ import img5 from "../assets/gallery/band.png";
 import img6 from "../assets/gallery/balloon.png";
 import img7 from "../assets/gallery/90s.png";
 
+// ADD NAMES TO YOUR IMAGES HERE
 const GALLERY_IMAGES = [
-  { id: 1, asset: img1 },
-  { id: 2, asset: img2 },
-  { id: 3, asset: img3 },
-  { id: 4, asset: img4 },
-  { id: 5, asset: img5 },
-  { id: 6, asset: img6 },
-  { id: 7, asset: img7 },
+  { id: 1, asset: img1, name: "Welcome Tusker " },
+  { id: 2, asset: img2, name: "Singing Orchestra" },
+  { id: 3, asset: img3, name: "Chendamelam" },  
+  { id: 4, asset: img4, name: "Swan Chariot" },
+  { id: 5, asset: img5, name: "Live Band" },
+  { id: 6, asset: img6, name: "Bouncing Castle" },
+  { id: 7, asset: img7, name: "90s Mittai Shop" },
 ];
 
-function ScrollingRow({ images, direction = "left", speed = 0.5, size }) {
+function ScrollingRow({ images, direction = "left", speed = 1, size }) {
   const baseX = useMotionValue(0);
-  
-  // Total width of ONE set of images + gaps
   const setWidth = images.length * (size.width + size.gap);
 
-  // Math to handle the infinite wrap-around
   const x = useTransform(baseX, (v) => {
     const wrappedX = ((v % setWidth) - setWidth) % setWidth;
-    return wrappedX;
+    return `${wrappedX}px`;
   });
 
   useAnimationFrame((t, delta) => {
-    const moveBy = speed * (delta / 16); // Normalized for 60fps
-    if (direction === "left") {
-      baseX.set(baseX.get() - moveBy);
-    } else {
-      baseX.set(baseX.get() + moveBy);
-    }
+    let moveBy = direction === "left" ? -speed : speed;
+    baseX.set(baseX.get() + moveBy * (delta / 10));
   });
 
   return (
     <div className="relative overflow-visible py-4">
       <motion.div
-        style={{ x }}
-        // Removed all drag props and listeners
-        className="flex flex-row items-center w-max"
+        style={{ x, willChange: "transform" }}
+        className="flex flex-row items-start w-max"
       >
-        {/* We use 4 sets to ensure the loop is seamless even on large monitors */}
         {[...images, ...images, ...images, ...images].map((img, i) => {
           const imagePath = img.asset?.src || img.asset;
           
           return (
             <div
               key={`${img.id}-${i}`}
-              className="shrink-0 rounded-2xl border border-black/5 shadow-md"
-              style={{
-                width: size.width,
-                height: size.width * 0.8,
-                marginRight: size.gap,
-                backgroundImage: `url(${imagePath})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            />
+              className="flex flex-col items-center shrink-0"
+              style={{ width: size.width, marginRight: size.gap }}
+            >
+              {/* IMAGE BOX */}
+              <div
+                className="w-full rounded-2xl border border-black/5 shadow-md overflow-hidden"
+                style={{
+                  height: size.width * 0.8,
+                  backgroundImage: `url(${imagePath})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              />
+              {/* NAME LABEL BELOW */}
+              <p className="mt-3 text-sm font-bold uppercase tracking-widest text-zinc-500">
+                {img.name}
+              </p>
+            </div>
           );
         })}
       </motion.div>
@@ -89,13 +89,12 @@ export default function Gallery() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Split images for variety in rows
-  const row1 = GALLERY_IMAGES.slice(0, 3);
+  const row1 = GALLERY_IMAGES.slice(0, 4);
   const row2 = GALLERY_IMAGES.slice(4, 7);
 
   return (
-    <section className="relative w-full py-16 overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6 text-center mb-12">
+    <section className="relative w-full overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6 text-center">
         <div className="flex flex-col items-center gap-2">
           <div className="flex items-center gap-3 text-red-600">
             <span className="h-px w-6 bg-current" />
@@ -108,10 +107,9 @@ export default function Gallery() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 overflow-hidden flex flex-col gap-4">
-        {/* Adjusted speed to 1.5 for a nice "cinematic" crawl */}
-        <ScrollingRow images={row1} direction="left" speed={1.5} size={size} />
-        <ScrollingRow images={row2} direction="right" speed={1.5} size={size} />
+      <div className="max-w-5xl mx-auto px-4 overflow-hidden flex flex-col gap-10">
+        <ScrollingRow images={row1} direction="left" speed={0.8} size={size} />
+        <ScrollingRow images={row2} direction="right" speed={0.8} size={size} />
       </div>
     </section>
   );
