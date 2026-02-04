@@ -10,6 +10,8 @@ import img4 from "../assets/gallery/bride.png";
 import img5 from "../assets/gallery/band.png";
 import img6 from "../assets/gallery/balloon.png";
 import img7 from "../assets/gallery/90s.png";
+import img8 from "../assets/gallery/360.png";
+import img9 from "../assets/gallery/micky.png";
 
 // ADD NAMES TO YOUR IMAGES HERE
 const GALLERY_IMAGES = [
@@ -19,7 +21,9 @@ const GALLERY_IMAGES = [
   { id: 4, asset: img4, name: "Swan Chariot" },
   { id: 5, asset: img5, name: "Live Band" },
   { id: 6, asset: img6, name: "Bouncing Castle" },
-  { id: 7, asset: img7, name: "90s Mittai Shop" },
+  { id: 7, asset: img7, name: "90s Candy Shop" },
+  { id: 8, asset: img8, name: "360° Rotator" },
+  { id: 9, asset: img9, name: "Clown Dance" },
 ];
 
 function ScrollingRow({ images, direction = "left", speed = 1, size }) {
@@ -89,8 +93,8 @@ export default function Gallery() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const row1 = GALLERY_IMAGES.slice(0, 4);
-  const row2 = GALLERY_IMAGES.slice(4, 7);
+  const row1 = GALLERY_IMAGES.slice(0, 5);
+  const row2 = GALLERY_IMAGES.slice(6, 9);
 
   return (
     <section className="relative w-full overflow-hidden">
