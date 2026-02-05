@@ -31,7 +31,6 @@ const ScrollingRow = ({ images, speed, size }) => {
   const [isDragging, setIsDragging] = useState(false);
   const isAnimating = useRef(false);
 
-  // Triple duplication ensures enough buffer for high-speed flicks
   const duplicatedImages = useMemo(() => [...images, ...images, ...images], [images]);
   const singleSetWidth = images.length * (size.width + size.gap);
 
@@ -40,10 +39,8 @@ const ScrollingRow = ({ images, speed, size }) => {
     return ((((v % range) - range) % range));
   };
 
-  useAnimationFrame((time, delta) => {
-    // Only move automatically if NOT being touched or flicked
+  useAnimationFrame((_, delta) => {
     if (isDragging || isAnimating.current) return;
-    
     const moveBy = speed * (delta / 16); 
     x.set(wrap(x.get() + moveBy));
   });
@@ -53,35 +50,34 @@ const ScrollingRow = ({ images, speed, size }) => {
     isAnimating.current = false;
   };
 
-  const handleDragEnd = (event, info) => {
+  const handleDragEnd = (_, info) => {
     setIsDragging(false);
-    
-    // Smooth momentum hand-off
     if (Math.abs(info.velocity.x) > 10) {
       isAnimating.current = true;
-      
       animate(x, x.get() + info.velocity.x * 0.2, {
         type: "spring",
         stiffness: 40,
         damping: 20,
         restDelta: 0.1,
         onUpdate: (latest) => x.set(wrap(latest)),
-        onComplete: () => {
-          isAnimating.current = false;
-        }
+        onComplete: () => { isAnimating.current = false; }
       });
     }
   };
 
   return (
-    <div className="group overflow-hidden will-change-transform">
+    <div className="group overflow-hidden will-change-transform py-4">
       <motion.div
         style={{ 
           x, 
-          touchAction: "pan-y" // CRITICAL: Allows vertical page scroll on mobile
+          touchAction: "pan-y", // Allows vertical scrolling
         }}
         drag="x"
-        dragDirectionLock // Prevents diagonal "stuck" feeling
+        dragDirectionLock
+        // Only start dragging horizontally if user moves more than 10px
+        // This prevents "snagging" the vertical scroll
+        dragPointerCapture={false} 
+        dragTransition={{ power: 0.2, timeConstant: 200 }}
         dragConstraints={{ left: -Infinity, right: Infinity }}
         onDragStart={handleDragStart}
         onDrag={() => x.set(wrap(x.get()))}
@@ -130,11 +126,10 @@ export default function Gallery() {
   }, []);
 
   const row1 = useMemo(() => RAW_IMAGES.slice(0, 5), []);
-  const row2 = useMemo(() => RAW_IMAGES.slice(5, 9), []);
+  const row2 = useMemo(() => RAW_IMAGES.slice(6, 9), []);
 
   return (
-    <section className="mx-auto w-full max-w-7xl overflow-hidden py-16 flex flex-col gap-12">
-      {/* HEADER */}
+    <section className="mx-auto w-full max-w-5xl overflow-x-hidden py-16 flex flex-col gap-12">
       <div className="px-6 text-center">
         <div className="flex flex-col items-center gap-2">
           <div className="flex items-center gap-3 text-red-600">
@@ -148,10 +143,9 @@ export default function Gallery() {
         </div>
       </div>
 
-      {/* GALLERY ROWS */}
-      <div className="flex flex-col gap-8 md:gap-16">
-        <ScrollingRow images={row1} speed={-0.8} size={size} />
-        <ScrollingRow images={row2} speed={0.8} size={size} />
+      <div className="flex flex-col gap-4 md:gap-16">
+        <ScrollingRow images={row1} speed={-0.6} size={size} />
+        <ScrollingRow images={row2} speed={0.6} size={size} />
       </div>
     </section>
   );
