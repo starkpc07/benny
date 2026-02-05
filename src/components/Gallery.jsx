@@ -143,7 +143,7 @@ export default function Gallery() {
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">Memories</span>
             <span className="h-px w-6 bg-zinc-300" />
           </div>
-          <h2 className="text-6xl font-black uppercase md:text-7xl tracking-tighter md:mb-12">
+          <h2 className="text-5xl font-black uppercase tracking-tighter md:mb-12">
             <span className="text-red-700 italic">GALLERY</span>
           </h2>
         </div>
