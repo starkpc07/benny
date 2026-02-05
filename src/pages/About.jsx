@@ -51,7 +51,7 @@ const About = () => {
           </motion.div>
 
           {/* Main Title - Split Animation */}
-          <h2 className="flex flex-wrap justify-center gap-x-3 sm:gap-x-4 text-4xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] sm:text-5xl md:text-6xl lg:text-7xl text-center">
+          <h2 className="flex flex-wrap justify-center gap-x-3 sm:gap-x-4 text-6xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] text-center">
             {/* Left Side: Crafting (Using percentages for mobile safety) */}
             <motion.span
               initial={{ opacity: 0, x: "-50%" }} // Changed from -150 to -50%

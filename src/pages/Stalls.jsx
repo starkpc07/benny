@@ -99,7 +99,7 @@ const Stalls = () => {
             </span>
             <span className="h-px w-6 bg-red-600" />
           </div>
-          <h2 className="text-3xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] sm:text-4xl md:text-5xl lg:text-6xl">
+          <h2 className="text-6xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] ">
             <span className="text-red-700 italic">Stalls</span>
           </h2>
         </motion.div>

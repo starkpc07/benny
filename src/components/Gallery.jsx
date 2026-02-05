@@ -1,7 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { motion, useAnimationFrame, useMotionValue, animate } from "framer-motion";
 
+// ASSETS - Keep your existing imports
 import img1 from "../assets/gallery/elephant.png";
 import img2 from "../assets/gallery/orchestra.png";
 import img3 from "../assets/gallery/chendamelam.png";
@@ -28,52 +29,69 @@ const RAW_IMAGES = [
 const ScrollingRow = ({ images, speed, size }) => {
   const x = useMotionValue(0);
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Ref to track if momentum animation (flick) is running
+  const isAnimating = useRef(false);
 
-  const duplicatedImages = [...images, ...images];
+  // Triple duplication ensures enough buffer for high-speed flicks
+  const duplicatedImages = useMemo(() => [...images, ...images, ...images], [images]);
   const singleSetWidth = images.length * (size.width + size.gap);
 
+  // Seamless wrapping function
   const wrap = (v) => {
-    return ((((v % singleSetWidth) - singleSetWidth) % singleSetWidth));
+    const range = singleSetWidth;
+    return ((((v % range) - range) % range));
   };
 
-  // 1. Auto-scrolling logic
-  useAnimationFrame(() => {
-    if (isDragging) return;
-    const currentX = x.get();
-    x.set(wrap(currentX + speed));
+  useAnimationFrame((time, delta) => {
+    // ONLY stop auto-move if user is manually dragging or the flick animation is active
+    if (isDragging || isAnimating.current) return;
+    
+    // delta ensures speed is consistent across 60Hz and 144Hz monitors
+    const moveBy = speed * (delta / 16); 
+    x.set(wrap(x.get() + moveBy));
   });
 
-  // 2. Drag & Flick logic
+  const handleDragStart = () => {
+    setIsDragging(true);
+    isAnimating.current = false;
+  };
+
   const handleDragEnd = (event, info) => {
     setIsDragging(false);
     
-    animate(x, x.get() + info.velocity.x * 0.2, {
-      type: "spring",
-      stiffness: 40,
-      damping: 20,
-      onUpdate: (latest) => x.set(wrap(latest)),
-    });
+    // If user "flicks" the row, trigger spring physics
+    if (Math.abs(info.velocity.x) > 10) {
+      isAnimating.current = true;
+      
+      animate(x, x.get() + info.velocity.x * 0.2, {
+        type: "spring",
+        stiffness: 40,
+        damping: 20,
+        restDelta: 0.1,
+        onUpdate: (latest) => x.set(wrap(latest)),
+        onComplete: () => {
+          isAnimating.current = false; l
+        }
+      });
+    }
   };
 
   return (
-    <div className="group cursor-grab active:cursor-grabbing overflow-hidden">
+    <div className="group cursor-grab active:cursor-grabbing overflow-hidden will-change-transform">
       <motion.div
-        style={{ x }}
+        style={{ x, touchAction: "pan-y" }}
         drag="x"
-        // Constraints set to Infinity to allow endless dragging
         dragConstraints={{ left: -Infinity, right: Infinity }}
-        onDragStart={() => setIsDragging(true)}
-        onDrag={() => {
-          // Wrap instantly while dragging so user never hits a "wall"
-          x.set(wrap(x.get()));
-        }}
+        onDragStart={handleDragStart}
+        onDrag={() => x.set(wrap(x.get()))}
         onDragEnd={handleDragEnd}
         className="flex flex-row items-start w-max"
       >
         {duplicatedImages.map((img, index) => (
           <div
             key={`${img.id}-${index}`}
-            className="flex flex-col items-center shrink-0 select-none"
+            className="flex flex-col items-center shrink-0 select-none px-2 md:px-0"
             style={{ width: size.width, marginRight: size.gap }}
           >
             <div
@@ -85,7 +103,7 @@ const ScrollingRow = ({ images, speed, size }) => {
                 backgroundPosition: "center",
               }}
             />
-            <p className="mt-4 text-[15px] md:text-lg font-black uppercase tracking-[0.2em] text-zinc-800">
+            <p className="mt-4 text-[14px] md:text-lg font-black uppercase tracking-[0.2em] text-zinc-800">
               {img.name}
             </p>
           </div>
@@ -102,8 +120,8 @@ export default function Gallery() {
   useEffect(() => {
     const handleResize = () => {
       setSize(window.innerWidth < 768 
-        ? { width: 260, gap: 16 } 
-        : { width: 400, gap: 32 }
+        ? { width: 280, gap: 16 } 
+        : { width: 420, gap: 32 }
       );
     };
     handleResize();
@@ -111,11 +129,12 @@ export default function Gallery() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const row1 = RAW_IMAGES.slice(0, 5);
-  const row2 = RAW_IMAGES.slice(6, 9);
+  // Defined rows
+  const row1 = useMemo(() => RAW_IMAGES.slice(0, 5), []);
+  const row2 = useMemo(() => RAW_IMAGES.slice(6, 9), []);
 
   return (
-    <section className="mx-auto max-w-5xl overflow-hidden py-16 flex flex-col gap-12">
+    <section className="mx-auto w-full max-w-7xl overflow-hidden py-16 flex flex-col gap-12">
       {/* HEADER */}
       <div className="px-6 text-center">
         <div className="flex flex-col items-center gap-2">
@@ -124,16 +143,16 @@ export default function Gallery() {
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">Memories</span>
             <span className="h-px w-6 bg-zinc-300" />
           </div>
-          <h2 className="text-5xl font-black uppercase md:text-7xl tracking-tighter">
+          <h2 className="text-6xl font-black uppercase md:text-7xl tracking-tighter md:mb-12">
             <span className="text-red-700 italic">GALLERY</span>
           </h2>
         </div>
       </div>
 
-      {/* ROWS */}
+      {/* GALLERY ROWS */}
       <div className="flex flex-col gap-8 md:gap-16">
-        <ScrollingRow images={row1} speed={-0.6} size={size} />
-        <ScrollingRow images={row2} speed={0.7} size={size} />
+        <ScrollingRow images={row1} speed={-0.8} size={size} />
+        <ScrollingRow images={row2} speed={0.8} size={size} />
       </div>
     </section>
   );
