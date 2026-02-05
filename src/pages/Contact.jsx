@@ -32,21 +32,21 @@ const Contact = () => {
   const contactItems = [
     { icon: <RiPhoneFill />, val: "+91 6382590381", link: "tel:+916382590381", iconStyles: "text-[#007AFF]" },
     { icon: <SiGmail />, val: "hello@benny.com", link: "mailto:hello@benny.com", iconStyles: "text-[#EA4335]" },
-    { icon: <SiGooglemaps />, val: "Madurai, TN", link: "https://maps.google.com", iconStyles: "text-[#34A853]" },
+    { icon: <SiGooglemaps />, val: "Madurai, TN", link: "https://www.google.com/maps/search/?api=1&query=11A,+Kalpalam+Rd,+Sellur,+Goripalayam,+Madurai,+Tamil+Nadu+625002", iconStyles: "text-[#34A853]" },
     { icon: <RiInstagramFill />, val: "@benny_events", link: "https://instagram.com/benny_events", iconStyles: "text-[#E4405F]" }
   ];
 
   return (
-    <section id="contact" className="relative w-full py-24 md:py-30 overflow-hidden selection:bg-red-600 selection:text-white">
+    <section id="contact" className="relative w-full py-16 md:py-24 overflow-hidden selection:bg-red-600 selection:text-white">
       
-      {/* ATMOSPHERIC BLURS - Reduced size */}
-      <div className="absolute top-[-5%] right-[-5%] size-64 md:size-96 rounded-full bg-slate-200/30 blur-[80px] pointer-events-none" />
-      <div className="absolute bottom-[-5%] left-[-5%] size-48 md:size-72 rounded-full bg-red-50/40 blur-[70px] pointer-events-none" />
+      {/* ATMOSPHERIC BLURS */}
+      <div className="absolute top-[-10%] right-[-5%] size-72 md:size-112.5 rounded-full bg-slate-200/20 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-5%] size-64 md:size-87.5 rounded-full bg-red-50/30 blur-[80px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12">
         
-        {/* HEADER SECTION - Reduced margins */}
-        <div className="mb-10 md:mb-12 flex flex-col items-center text-center">
+        {/* HEADER SECTION */}
+        <div className="mb-10 md:mb-14 flex flex-col items-center text-center">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -63,7 +63,7 @@ const Contact = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: false, amount: 0.5 }}
-            className="text-2xl font-black uppercase leading-tight tracking-tighter text-[#020617] sm:text-3xl md:text-4xl" 
+            className="text-3xl md:text-5xl font-black uppercase leading-tight tracking-tighter text-[#020617]" 
           >
             {contactText.split("").map((char, index) => (
               <motion.span key={index} variants={letter}>
@@ -73,7 +73,8 @@ const Contact = () => {
           </motion.h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 md:grid-cols-2 gap-6 items-stretch">
+        {/* GRID SECTION */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 items-stretch">
           
           {/* LEFT SECTION: QUICK CONTACT */}
           <motion.div 
@@ -81,21 +82,21 @@ const Contact = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="relative flex flex-col"
+            className="flex"
           >
-            <div className="bg-zinc-900/5 p-6 md:p-8 rounded-3xl border border-black/3 h-full flex flex-col items-center justify-between text-center">
-              <div className="w-full">
-                <h3 className="text-lg font-black uppercase tracking-tighter text-[#0f172a] mb-6">Quick Contact</h3>
-                <div className="flex flex-col gap-y-4 w-full max-w-xs mx-auto">
+            <div className="bg-zinc-50/50 p-8 md:p-10 rounded-[2.5rem] border border-black/5 w-full flex flex-col">
+              <div className="grow">
+                <h3 className="text-lg md:text-xl font-black uppercase tracking-tighter text-[#0f172a] mb-8">Direct Lines</h3>
+                <div className="flex flex-col gap-y-5">
                   {contactItems.map((item, i) => (
-                    <a key={i} href={item.link} target="_blank" rel="noreferrer" className="flex items-center gap-4 group transition-all">
-                      <div className="shrink-0 size-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-black/2 group-hover:scale-105 transition-all duration-300">
-                        <span className={`text-xl flex items-center justify-center ${item.iconStyles}`}>
+                    <a key={i} href={item.link} target="_blank" rel="noreferrer" className="flex items-center gap-4 group">
+                      <div className="shrink-0 size-11 md:size-12 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-black/5 group-hover:bg-red-600 group-hover:text-white transition-all duration-300">
+                        <span className={`text-xl md:text-2xl transition-colors duration-300 ${item.iconStyles} group-hover:text-white`}>
                           {item.icon}
                         </span>
                       </div>
                       <div className="text-left">
-                        <p className="text-xs font-bold text-[#0f172a] tracking-tight leading-tight group-hover:text-red-700 transition-colors">
+                        <p className="text-sm md:text-base font-bold text-zinc-600 group-hover:text-black transition-colors">
                           {item.val}
                         </p>
                       </div>
@@ -104,16 +105,14 @@ const Contact = () => {
                 </div>
               </div>
 
-              <div className="mt-8 flex flex-col items-center space-y-4 w-full">
-                <p className="text-[10px] font-bold text-zinc-500 max-w-50 leading-relaxed">
-                  Let's talk strategy and turn your vision into reality.
-                </p>
+              {/* WHATSAPP AT THE END */}
+              <div className="mt-12 pt-8 border-t border-black/5">
                 <a 
                   href="https://wa.me/916382590381" 
-                  className="inline-flex items-center gap-2 bg-[#25D366] text-white px-6 py-3 rounded-full font-black uppercase text-[9px] tracking-widest hover:shadow-lg hover:shadow-green-500/10 transition-all active:scale-95 w-full sm:w-auto justify-center"
+                  className="inline-flex items-center gap-3 bg-[#25D366] text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:shadow-[0_10px_30px_rgba(37,211,102,0.3)] transition-all active:scale-95 w-full justify-center"
                 >
-                  <RiWhatsappFill size={18} />
-                  WhatsApp
+                  <RiWhatsappFill size={20} />
+                  Start WhatsApp Chat
                 </a>
               </div>
             </div>
@@ -125,35 +124,60 @@ const Contact = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="relative flex flex-col"
+            className="flex"
           >
-            <div className="absolute inset-0 bg-white rounded-3xl shadow-sm border border-zinc-100" />
-            <form className="relative z-10 p-6 md:p-8 flex flex-col h-full items-center">
-              <h3 className="text-lg font-black uppercase tracking-tighter text-[#0f172a] mb-6 text-center">Inquiry Form</h3>
-              <div className="space-y-4 w-full">
-                <div className="space-y-1">
-                  <label className="text-[9px] uppercase font-black tracking-widest text-zinc-400 ml-1">Full Name</label>
-                  <input type="text" placeholder="Your Name" required className="w-full bg-zinc-50 border border-transparent rounded-xl px-4 py-3 text-xs font-bold text-[#0f172a] focus:bg-white focus:border-red-600/10 transition-all outline-none" />
+            <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.04)] border border-zinc-100 w-full flex flex-col">
+              <h3 className="text-lg md:text-xl font-black uppercase tracking-tighter text-[#0f172a] mb-8">Inquiry Form</h3>
+              
+              <form className="flex flex-col grow">
+                <div className="space-y-5 mb-8">
+                  {/* Name & Phone Group */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[15px] uppercase font-black tracking-widest text-zinc-600 ml-1">Your Name</label>
+                      <input 
+                        type="text" 
+                        placeholder="Name" 
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-4 text-sm font-bold text-[#0f172a] focus:bg-white focus:ring-2 focus:ring-red-600/10 focus:border-red-600/20 transition-all outline-none placeholder:text-zinc-300" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[15px] uppercase font-black tracking-widest text-zinc-600 ml-1">Phone Number</label>
+                      <input 
+                        type="tel" 
+                        placeholder="Contact Number" 
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-4 text-sm font-bold text-[#0f172a] focus:bg-white focus:ring-2 focus:ring-red-600/10 focus:border-red-600/20 transition-all outline-none placeholder:text-zinc-300" 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Details Field */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[15px] uppercase font-black tracking-widest text-zinc-600 ml-1">Describe Your Needs</label>
+                    <textarea 
+                      rows="5" 
+                      placeholder="Date, Location, Requirements..." 
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-4 text-sm font-bold text-[#0f172a] focus:bg-white focus:ring-2 focus:ring-red-600/10 focus:border-red-600/20 transition-all outline-none resize-none placeholder:text-zinc-300"
+                    ></textarea>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] uppercase font-black tracking-widest text-zinc-400 ml-1">Phone Number</label>
-                  <input type="tel" placeholder="Phone Number" required className="w-full bg-zinc-50 border border-transparent rounded-xl px-4 py-3 text-xs font-bold text-[#0f172a] focus:bg-white focus:border-red-600/10 transition-all outline-none" />
+                
+                {/* SEND BUTTON - Anchored to bottom */}
+                <div className="mt-auto">
+                  <button 
+                    type="submit" 
+                    className="group relative w-full overflow-hidden py-5 rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] text-white shadow-xl transition-all active:scale-95 flex justify-center items-center gap-2"
+                  >
+                    <div className="absolute inset-0 bg-zinc-900 group-hover:bg-red-700 transition-colors duration-500" />
+                    <span className="relative flex items-center gap-2">
+                      Send Message <RiSendPlaneFill className="text-lg" />
+                    </span>
+                  </button>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] uppercase font-black tracking-widest text-zinc-400 ml-1">Event Details</label>
-                  <textarea rows="2" placeholder="Requirements..." className="w-full bg-zinc-50 border border-transparent rounded-xl px-4 py-3 text-xs font-bold text-[#0f172a] focus:bg-white focus:border-red-600/10 transition-all outline-none resize-none"></textarea>
-                </div>
-              </div>
-              <div className="mt-8 w-full flex justify-center">
-                <button type="submit" className="group relative w-full sm:w-auto overflow-hidden py-4 px-8 rounded-full font-black uppercase text-[9px] tracking-widest text-white shadow-xl transition-all active:scale-95 flex justify-center items-center gap-2">
-                  <div className="absolute inset-0 bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] bg-size-[200%_100%] transition-all duration-500 group-hover:bg-position-[100%_0%]" />
-                  <span className="relative flex items-center justify-center gap-2">
-                    Send Inquiry <RiSendPlaneFill className="text-base" />
-                  </span>
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </motion.div>
+
         </div>
       </div>    
     </section>

@@ -29,9 +29,9 @@ const About = () => {
       <div className="absolute top-[10%] left-[-10%] w-75 h-75 md:w-175 md:h-175 rounded-full bg-red-50/50 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[10%] right-[-10%] w-62.5 h-62.5 md:w-150 md:h-150 rounded-full bg-slate-200/40 blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
-        {/* HEADER SECTION - REVERSES ON SCROLL UP */}
-        {/* Added overflow-hidden to prevent horizontal scroll on mobile entry */}
+      {/* ADJUSTED WIDTH: Changed max-w-5xl to max-w-7xl */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12">
+        {/* HEADER SECTION */}
         <div className="mb-12 md:mb-20 flex flex-col items-center overflow-hidden py-2">
           {/* Subtitle - Center Fade */}
           <motion.div
@@ -51,10 +51,9 @@ const About = () => {
           </motion.div>
 
           {/* Main Title - Split Animation */}
-          <h2 className="flex flex-wrap justify-center gap-x-3 sm:gap-x-4 text-5xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] text-center">
-            {/* Left Side: Crafting (Using percentages for mobile safety) */}
+          <h2 className="flex flex-wrap justify-center gap-x-3 sm:gap-x-4 text-5xl md:text-7xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] text-center">
             <motion.span
-              initial={{ opacity: 0, x: "-50%" }} // Changed from -150 to -50%
+              initial={{ opacity: 0, x: "-50%" }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: false, amount: 0.4 }}
               transition={{
@@ -66,9 +65,8 @@ const About = () => {
               Crafting
             </motion.span>
 
-            {/* Right Side: Legacy */}
             <motion.span
-              initial={{ opacity: 0, x: "50%" }} // Changed from 150 to 50%
+              initial={{ opacity: 0, x: "50%" }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: false, amount: 0.4 }}
               transition={{
@@ -84,8 +82,8 @@ const About = () => {
         </div>
 
         {/* CONTENT GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-16 items-start">
-          {/* LEFT: IMAGE - REVERSES ON SCROLL UP */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-20 items-center">
+          {/* LEFT: IMAGE */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, x: -20 }}
             whileInView={{ opacity: 1, scale: 1, x: 0 }}
@@ -93,11 +91,11 @@ const About = () => {
             transition={{ duration: 0.8 }}
             className="md:col-span-5 relative group"
           >
-            <div className="aspect-4/5 rounded-[2.5rem] overflow-hidden shadow-2xl bg-zinc-200">
+            <div className="aspect-3/4 md:aspect-4/6 lg:aspect-8/9 rounded-[2.5rem] overflow-hidden shadow-2xl bg-zinc-200">
               <img
                 src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=800"
                 alt="Grand Event Celebration"
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
               />
             </div>
 
@@ -111,7 +109,7 @@ const About = () => {
             </div>
           </motion.div>
 
-          {/* RIGHT: TEXT CONTENT - ALL REVERSE ON SCROLL UP */}
+          {/* RIGHT: TEXT CONTENT */}
           <div className="md:col-span-7 space-y-8">
             <motion.div
               custom={1}
@@ -122,7 +120,7 @@ const About = () => {
               className="relative"
             >
               <RiDoubleQuotesL className="text-6xl text-red-600 opacity-10 absolute -top-8 -left-4" />
-              <p className="text-xl md:text-2xl text-zinc-800 font-bold leading-tight relative z-10">
+              <p className="text-xl md:text-3xl text-zinc-800 font-bold leading-tight relative z-10">
                 At Benny Events, we believe an occasion is more than just a
                 gathering. It’s a symphony of moments designed to leave an
                 indelible mark on the soul.
@@ -149,7 +147,7 @@ const About = () => {
               variants={fadeInRight}
               className="flex flex-col sm:grid sm:grid-cols-2 gap-4 md:gap-6 pt-4"
             >
-              <div className="flex items-center sm:items-start gap-4 p-5 md:p-6 rounded-4xl bg-white shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-black/3 hover:border-red-600/10 transition-colors">
+              <div className="flex items-center sm:items-start gap-4 p-5 md:p-6 rounded-4xl shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-black/3 hover:border-red-600/10 transition-colors">
                 <div className="size-12 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
                   <RiFocus3Line className="text-2xl text-red-600" />
                 </div>

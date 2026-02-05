@@ -77,7 +77,6 @@ const Navbar = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              // will-change-transform + translate-z-0 prevents mobile stutter
               className="fixed inset-x-4 top-24 bottom-6 z-160 rounded-[2.5rem] bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#B22222] shadow-2xl md:hidden overflow-hidden will-change-transform translate-z-0"
             >
               <div className="flex h-full flex-col justify-between p-6">
@@ -112,8 +111,8 @@ const Navbar = () => {
       </AnimatePresence>
 
       <header className="fixed inset-x-0 top-4 z-200 md:top-8">
-        {/* lg:px-[7px] added as requested */}
-        <div className="mx-4 max-w-6xl lg:px-5 md:px-5 md:mx-auto">
+        {/* Updated width and responsiveness while keeping request padding */}
+        <div className="mx-4 max-w-400 lg:px-10 md:px-5 md:mx-auto transition-all duration-300">
           <nav className="relative flex h-14 items-center justify-between rounded-full bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] px-4 shadow-2xl md:h-20 md:px-8 border border-white/20 will-change-transform transform-gpu">
             <button onClick={(e) => handleNavClick(e, "/")} className="group relative z-210 flex items-center gap-3 cursor-pointer">
               <img src={logoImg} alt="Logo" className="h-12 w-12 md:h-16 md:w-16 object-contain" />

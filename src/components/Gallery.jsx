@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo, useRef, memo } from "react";
 import { motion, useAnimationFrame, useMotionValue, animate } from "framer-motion";
 
-// ASSETS - Keep your existing imports
+// ASSETS
 import img1 from "../assets/gallery/elephant.png";
 import img2 from "../assets/gallery/orchestra.png";
 import img3 from "../assets/gallery/chendamelam.png";
@@ -26,11 +26,12 @@ const RAW_IMAGES = [
 ];
 
 /* ===================== SCROLLING ROW COMPONENT ===================== */
-const ScrollingRow = ({ images, speed, size }) => {
+const ScrollingRow = memo(({ images, speed, size }) => {
   const x = useMotionValue(0);
   const [isDragging, setIsDragging] = useState(false);
   const isAnimating = useRef(false);
 
+  // Triple images ensures a seamless loop even on the widest constrained container
   const duplicatedImages = useMemo(() => [...images, ...images, ...images], [images]);
   const singleSetWidth = images.length * (size.width + size.gap);
 
@@ -58,7 +59,6 @@ const ScrollingRow = ({ images, speed, size }) => {
         type: "spring",
         stiffness: 40,
         damping: 20,
-        restDelta: 0.1,
         onUpdate: (latest) => x.set(wrap(latest)),
         onComplete: () => { isAnimating.current = false; }
       });
@@ -66,40 +66,32 @@ const ScrollingRow = ({ images, speed, size }) => {
   };
 
   return (
-    <div className="group overflow-hidden will-change-transform py-4">
+    <div className="group overflow-hidden will-change-transform py-2">
       <motion.div
-        style={{ 
-          x, 
-          touchAction: "pan-y", // Allows vertical scrolling
-        }}
+        style={{ x, touchAction: "pan-y" }}
         drag="x"
-        dragDirectionLock
-        // Only start dragging horizontally if user moves more than 10px
-        // This prevents "snagging" the vertical scroll
         dragPointerCapture={false} 
-        dragTransition={{ power: 0.2, timeConstant: 200 }}
-        dragConstraints={{ left: -Infinity, right: Infinity }}
         onDragStart={handleDragStart}
         onDrag={() => x.set(wrap(x.get()))}
         onDragEnd={handleDragEnd}
-        className="flex flex-row items-start w-max cursor-grab active:cursor-grabbing"
+        className="flex flex-row items-start w-max cursor-grab active:cursor-grabbing transform-gpu"
       >
         {duplicatedImages.map((img, index) => (
           <div
             key={`${img.id}-${index}`}
-            className="flex flex-col items-center shrink-0 select-none px-2 md:px-0"
+            className="flex flex-col items-center shrink-0 select-none px-2"
             style={{ width: size.width, marginRight: size.gap }}
           >
             <div
-              className="w-full rounded-3xl shadow-lg overflow-hidden bg-zinc-100 pointer-events-none border border-zinc-200"
+              className="w-full rounded-4xl md:rounded-[3rem] shadow-xl overflow-hidden bg-zinc-100 border border-zinc-200 transition-transform duration-500 group-hover:scale-[0.98]"
               style={{
-                height: size.width * 0.7,
+                height: size.width * 0.75,
                 backgroundImage: `url(${img.asset?.src || img.asset})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
             />
-            <p className="mt-4 text-[14px] md:text-lg font-black uppercase tracking-[0.2em] text-zinc-800">
+            <p className="mt-4 text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-zinc-400">
               {img.name}
             </p>
           </div>
@@ -107,7 +99,7 @@ const ScrollingRow = ({ images, speed, size }) => {
       </motion.div>
     </div>
   );
-};
+});
 
 /* ===================== MAIN GALLERY COMPONENT ===================== */
 export default function Gallery() {
@@ -115,10 +107,14 @@ export default function Gallery() {
 
   useEffect(() => {
     const handleResize = () => {
-      setSize(window.innerWidth < 768 
-        ? { width: 280, gap: 16 } 
-        : { width: 420, gap: 32 }
-      );
+      const iw = window.innerWidth;
+      if (iw < 768) {
+        setSize({ width: 280, gap: 16 });
+      } else if (iw < 1280) {
+        setSize({ width: 360, gap: 24 }); 
+      } else {
+        setSize({ width: 440, gap: 32 }); // Optimized for 2xl container
+      }
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -126,26 +122,34 @@ export default function Gallery() {
   }, []);
 
   const row1 = useMemo(() => RAW_IMAGES.slice(0, 5), []);
-  const row2 = useMemo(() => RAW_IMAGES.slice(6, 9), []);
+  const row2 = useMemo(() => RAW_IMAGES.slice(5, 9), []);
 
   return (
-    <section className="mx-auto w-full max-w-5xl overflow-x-hidden py-16 flex flex-col gap-12">
-      <div className="px-6 text-center">
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex items-center gap-3 text-red-600">
-            <span className="h-px w-6 bg-zinc-300" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">Memories</span>
-            <span className="h-px w-6 bg-zinc-300" />
+    <section className="w-full py-16 md:py-32 flex flex-col items-center overflow-hidden selection:bg-red-600 selection:text-white">
+      
+      {/* Header Container */}
+      <div className="w-full max-w-7xl px-6 text-center mb-12 md:mb-20">
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex items-center gap-4">
+            <span className="h-px w-10 bg-red-600" />
+            <span className="text-[11px] font-black uppercase tracking-[0.5em] text-zinc-400">
+              Capturing Moments
+            </span>
+            <span className="h-px w-10 bg-red-600" />
           </div>
-          <h2 className="text-5xl font-black uppercase tracking-tighter md:mb-12">
-            <span className="text-red-700 italic">GALLERY</span>
+          <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-slate-950">
+            Event <span className="text-red-700 italic underline decoration-zinc-100 underline-offset-8">Gallery</span>
           </h2>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 md:gap-16">
-        <ScrollingRow images={row1} speed={-0.6} size={size} />
-        <ScrollingRow images={row2} speed={0.6} size={size} />
+      {/* GALLERY AREA: Constrained for Desktop clarity */}
+      <div className="relative w-full max-w-screen-2xl">
+        <div className="flex flex-col gap-6 md:gap-14">
+          <ScrollingRow images={row1} speed={-0.5} size={size} />
+          <ScrollingRow images={row2} speed={0.5} size={size} />
+        </div>
+
       </div>
     </section>
   );

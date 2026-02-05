@@ -43,7 +43,7 @@ const Slider = () => {
   };
 
   return (
-    <div className="relative w-full max-w-5xl h-64 sm:h-80 md:h-100 lg:h-112.5 rounded-3xl md:rounded-[2.5rem] overflow-hidden mb-8 md:mb-12 shadow-2xl bg-black group">
+    <div className="relative w-full max-w-5xl h-64 sm:h-80 md:h-100 lg:h-112.5 rounded-3xl md:rounded-[2.5rem] overflow-hidden mb-2 md:mb-4 shadow-2xl bg-black group">
       <AnimatePresence initial={false} custom={direction} mode="popLayout">
         <motion.div
           key={index}

@@ -1,10 +1,7 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
-import {
-  RiArrowLeftSLine,
-  RiArrowRightSLine,
-  RiExpandLeftRightLine,
-} from "react-icons/ri";
+import { motion } from "framer-motion";
+import { useState, memo, useMemo, useCallback } from "react";
+import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
+
 import popImg from "../assets/stalls/pop.webp";
 import PappadImg from "../assets/stalls/pappad.webp";
 import jigarImg from "../assets/stalls/jigar.webp";
@@ -22,24 +19,82 @@ const stallsData = [
   { id: 2, title: "Delhi Pappad", image: PappadImg },
   { id: 3, title: "Cotton Candy", image: candyImg },
   { id: 4, title: "Cauliflower 65", image: cauliImg },
-  { id: 5, title: "Spiral Potato & French Fries", image: spiralImg },
+  { id: 5, title: "Spiral Potato", image: spiralImg },
   { id: 6, title: "Jigarthanda", image: jigarImg },
   { id: 7, title: "Fruit Salad", image: saladImg },
   { id: 8, title: "Sweet Beeda", image: beedaImg },
-  { id: 9, title: "Sugar Cane Juice", image: sugarImg },
-  { id: 10, title: "Paani & Masala Poori", image: paaniImg },
+  { id: 9, title: "Sugar Cane", image: sugarImg },
+  { id: 10, title: "Masala Poori", image: paaniImg },
   { id: 11, title: "Ice cream", image: iceImg },
 ];
+
+const variants = {
+  center: {
+    x: "0%",
+    scale: 1.05,
+    zIndex: 10,
+    opacity: 1,
+    rotateY: 0,
+    pointerEvents: "auto",
+  },
+  left: {
+    x: "-55%",
+    scale: 0.85,
+    zIndex: 5,
+    opacity: 0.85,
+    rotateY: 25,
+    pointerEvents: "none",
+  },
+  right: {
+    x: "55%",
+    scale: 0.85,
+    zIndex: 5,
+    opacity: 0.85,
+    rotateY: -25,
+    pointerEvents: "none",
+  },
+  hidden: { x: "0%", scale: 0.5, zIndex: 0, opacity: 0, pointerEvents: "none" },
+};
+
+const StallCard = memo(({ stall, variant }) => (
+  <motion.div
+    initial="hidden"
+    animate={variant}
+    variants={variants}
+    transition={{ type: "spring", stiffness: 200, damping: 25, mass: 0.8 }}
+    className="absolute w-60 md:w-80 lg:w-96 h-95 md:h-137.5 rounded-[3rem] overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] bg-white p-2.5 md:p-3 will-change-transform transform-gpu"
+  >
+    <div className="relative w-full h-full rounded-[2.2rem] overflow-hidden">
+      <img
+        src={stall.image}
+        alt={stall.title}
+        className="w-full h-full object-cover select-none"
+        loading="lazy"
+      />
+      <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 text-center">
+        <h3 className="text-xl md:text-3xl font-black text-white uppercase tracking-tighter leading-tight">
+          {stall.title}
+        </h3>
+      </div>
+    </div>
+  </motion.div>
+));
 
 const Stalls = () => {
   const [positionIndex, setPositionIndex] = useState(0);
 
-  const handleNext = () =>
-    setPositionIndex((prev) => (prev + 1) % stallsData.length);
-  const handlePrev = () =>
-    setPositionIndex(
-      (prev) => (prev - 1 + stallsData.length) % stallsData.length,
-    );
+  const handleNext = useCallback(
+    () => setPositionIndex((prev) => (prev + 1) % stallsData.length),
+    [],
+  );
+  const handlePrev = useCallback(
+    () =>
+      setPositionIndex(
+        (prev) => (prev - 1 + stallsData.length) % stallsData.length,
+      ),
+    [],
+  );
 
   const onDragEnd = (event, info) => {
     const threshold = 50;
@@ -47,142 +102,104 @@ const Stalls = () => {
     else if (info.offset.x > threshold) handlePrev();
   };
 
-  const getCardVariant = (index) => {
-    const diff =
-      (index - positionIndex + stallsData.length) % stallsData.length;
-    if (diff === 0) return "center";
-    if (diff === 1) return "right";
-    if (diff === stallsData.length - 1) return "left";
-    return "hidden";
-  };
-
-  const variants = {
-    center: { x: "0%", scale: 1.1, zIndex: 10, opacity: 1, rotateY: 0, z: 0 },
-    left: {
-      x: "-75%",
-      scale: 0.8,
-      zIndex: 5,
-      opacity: 0.8,
-      rotateY: 45,
-      z: -200,
-    },
-    right: {
-      x: "75%",
-      scale: 0.8,
-      zIndex: 5,
-      opacity: 0.8,
-      rotateY: -45,
-      z: -200,
-    },
-    hidden: { x: "0%", scale: 0.5, zIndex: 0, opacity: 0, rotateY: 0, z: -400 },
-  };
-
   return (
-    <section className="py-16 md:py-24 overflow-hidden selection:bg-red-600 selection:text-white">
-      {/* HEADER SECTION - ANIMATES EVERY TIME YOU SCROLL UP OR DOWN */}
-      <div className="max-w-7xl mx-auto px-6 text-center mb-12 md:mb-20">
-        <motion.div
-          initial={{ opacity: 0, x: -100 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          // once: false (default) makes it repeat every time it enters view
-          viewport={{ once: false, amount: 0.3 }}
-          transition={{
-            duration: 0.8,
-            ease: [0.16, 1, 0.3, 1], // Custom "Expo" ease for a more premium feel
-          }}
-          className="flex flex-col items-center gap-2"
-        >
-          <div className="mb-3 flex items-center gap-3">
-            <span className="h-px w-6 bg-red-600" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">
-              Specialized
-            </span>
-            <span className="h-px w-6 bg-red-600" />
-          </div>
-          <h2 className="text-5xl font-black uppercase leading-[1.1] tracking-tighter text-[#020617] ">
-            <span className="text-red-700 italic">Stalls</span>
-          </h2>
-        </motion.div>
-      </div>
-
-      <div className="relative max-w-250 mx-auto flex items-center justify-center px-4 md:px-12">
-        {/* DESKTOP LEFT ARROW */}
-        <div className="hidden md:block absolute left-4 lg:left-10 z-30">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handlePrev}
-            className="size-16 rounded-full bg-white/70 backdrop-blur-xl border border-white/50 flex items-center justify-center shadow-xl hover:bg-black hover:text-white transition-all"
-          >
-            <RiArrowLeftSLine size={32} />
-          </motion.button>
-        </div>
-
-        {/* CAROUSEL WRAPPER */}
-        <div className="relative h-130 md:h-137.5 w-full flex flex-col items-center justify-center touch-pan-y">
+    <section className="py-16 md:py-32 overflow-hidden selection:bg-red-600 selection:text-white">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col lg:flex-row items-center gap-6 md:gap-8 lg:gap-12">
           <motion.div
-            drag="x"
-            dragDirectionLock
-            dragConstraints={{ left: 0, right: 0 }}
-            onDragEnd={onDragEnd}
-            style={{ willChange: "transform", transformStyle: "preserve-3d" }}
-            className="relative w-full h-105 md:h-120 flex items-center justify-center perspective-[1500px] cursor-grab active:cursor-grabbing"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="w-full lg:w-2/5 space-y-4 md:space-y-8 text-center lg:text-left"
           >
-            {stallsData.map((stall, index) => (
-              <motion.div
-                key={stall.id}
-                initial="hidden"
-                animate={getCardVariant(index)}
-                variants={variants}
-                transition={{ type: "spring", stiffness: 180, damping: 24 }}
-                className="absolute w-67.5 md:w-90 h-full rounded-[3rem] overflow-hidden shadow-2xl bg-white pointer-events-none border border-white/20 p-2.5 md:p-3"
-              >
-                <div className="relative w-full h-full rounded-[2.2rem] overflow-hidden">
-                  <img
-                    src={stall.image}
-                    alt={stall.title}
-                    className="w-full h-full object-cover select-none"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/20 to-transparent" />
+            <div className="flex items-center justify-center lg:justify-start gap-4">
+              <span className="h-px w-6 bg-red-600" />
+              <span className="text-[11px] font-black uppercase tracking-[0.5em] text-zinc-400">
+                Premium Live Counters
+              </span>
+              <span className="h-px w-6 bg-red-600" />
+            </div>
 
-                  <div className="absolute bottom-0 left-0 w-full p-8 md:p-10 text-center">
-                    <h3 className="text-xl md:text-3xl font-black text-white uppercase tracking-tighter leading-tight">
-                      {stall.title}
-                    </h3>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+            <h2 className="text-4xl sm:text-6xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tighter text-slate-950 max-lg:whitespace-nowrap">
+              Unique <br className="hidden lg:block" />
+              <span className="text-red-700 italic"> Stalls</span>
+            </h2>
+
+            <div className="space-y-4 md:space-y-6 text-zinc-500 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              <p>
+                From{" "}
+                <span className="text-slate-900 font-bold">
+                  traditional savories
+                </span>{" "}
+                to
+                <span className="text-slate-900 font-bold">
+                  {" "}
+                  refreshing desserts
+                </span>
+                , we bring the authentic taste of street festivals to your
+                premium events.
+              </p>
+            </div>
           </motion.div>
 
-          {/* MOBILE CONTROLS */}
-          <div className="flex md:hidden gap-8 mt-16 pb-4">
-            <button
-              onClick={handlePrev}
-              className="size-14 rounded-full bg-white border border-zinc-200 flex items-center justify-center shadow-lg active:scale-95 transition-transform"
-            >
-              <RiArrowLeftSLine size={28} className="text-zinc-800" />
-            </button>
-            <button
-              onClick={handleNext}
-              className="size-14 rounded-full bg-white border border-zinc-200 flex items-center justify-center shadow-lg active:scale-95 transition-transform"
-            >
-              <RiArrowRightSLine size={28} className="text-zinc-800" />
-            </button>
-          </div>
-        </div>
+          <div className="w-full lg:w-3/5 relative h-112.5 md:h-162.5 flex flex-col items-center justify-center">
+            {/* DESKTOP ARROWS */}
+            <div className="hidden lg:block absolute left-10 top-1/2 -translate-y-1/2 z-30">
+              <button
+                onClick={handlePrev}
+                className="size-14 rounded-full bg-white shadow-xl border border-slate-100 flex items-center justify-center hover:bg-black hover:text-white transition-all cursor-pointer"
+              >
+                <RiArrowLeftSLine size={32} />
+              </button>
+            </div>
 
-        {/* DESKTOP RIGHT ARROW */}
-        <div className="hidden md:block absolute right-4 lg:right-10 z-30">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleNext}
-            className="size-16 rounded-full bg-white/70 backdrop-blur-xl border border-white/50 flex items-center justify-center shadow-xl hover:bg-black hover:text-white transition-all"
-          >
-            <RiArrowRightSLine size={32} />
-          </motion.button>
+            <div className="hidden lg:block absolute -right-10 top-1/2 -translate-y-1/2 z-30">
+              <button
+                onClick={handleNext}
+                className="size-14 rounded-full bg-white shadow-xl border border-slate-100 flex items-center justify-center hover:translate-x-1 transition-all cursor-pointer"
+              >
+                <RiArrowRightSLine size={32} />
+              </button>
+            </div>
+
+            <motion.div
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              onDragEnd={onDragEnd}
+              style={{ transformStyle: "preserve-3d" }}
+              className="relative w-full h-full flex items-center justify-center perspective-distant transform-gpu"
+            >
+              {stallsData.map((stall, index) => {
+                const diff =
+                  (index - positionIndex + stallsData.length) %
+                  stallsData.length;
+                let variant = "hidden";
+                if (diff === 0) variant = "center";
+                else if (diff === 1) variant = "right";
+                else if (diff === stallsData.length - 1) variant = "left";
+
+                return (
+                  <StallCard key={stall.id} stall={stall} variant={variant} />
+                );
+              })}
+            </motion.div>
+
+            {/* MOBILE/TABLET NAVIGATION */}
+            <div className="flex lg:hidden mt-10 items-center gap-10">
+              <button
+                onClick={handlePrev}
+                className="size-14 rounded-full bg-white shadow-lg flex items-center justify-center border border-slate-100 active:scale-95 transition-transform"
+              >
+                <RiArrowLeftSLine size={28} className="text-slate-900" />
+              </button>
+              <button
+                onClick={handleNext}
+                className="size-14 rounded-full bg-white shadow-lg flex items-center justify-center border border-slate-100 active:scale-95 transition-transform"
+              >
+                <RiArrowRightSLine size={28} className="text-slate-900" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>

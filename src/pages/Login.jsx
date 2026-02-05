@@ -1,243 +1,183 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
 import { 
   RiMailLine, RiLockPasswordLine, RiEyeLine, RiEyeOffLine, 
-  RiGoogleFill, RiLogoutCircleRLine, RiVerifiedBadgeFill, RiArrowLeftLine,
-  RiDoubleQuotesL, RiFacebookFill, RiUserLine
+  RiGoogleFill, RiArrowLeftLine, RiDoubleQuotesL, RiFacebookFill, RiUserLine 
 } from "react-icons/ri";
-import { 
-  signInWithEmailAndPassword, 
-  signInWithPopup, 
-  onAuthStateChanged, 
-  signOut,
-  FacebookAuthProvider 
-} from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
+
+// Import your page components
+import Admin from "../pages/Admin";
+import UserPanel from "../pages/UserPanel";
 
 const Login = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [step, setStep] = useState(1);
 
+  // Initial loading simulation
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [user, step]);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
   }, []);
 
-  const handleEmailLogin = async (e) => {
+  const handleLogout = () => {
+    setUser(null);
+    setStep(1);
+    setUsername("");
+    setPassword("");
+  };
+
+  // MOCK LOGIN LOGIC
+  const handleMockLogin = (e) => {
     e.preventDefault();
     setError("");
     setIsSubmitting(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (err) {
-      setError("Invalid credentials.");
-    } finally {
+
+    setTimeout(() => {
+      if (username === "admin" && password === "admin") {
+        setUser({ email: "admin@benny.com", displayName: "Head Admin", role: "admin" });
+      } else if (username === "user" && password === "user") {
+        setUser({ email: "client@benny.com", displayName: "Event Guest", role: "user" });
+      } else {
+        setError("Invalid! Use 'admin' or 'user' for both fields.");
+      }
       setIsSubmitting(false);
-    }
+    }, 1000);
   };
 
-  const handleGoogleLogin = async () => {
-    setError("");
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (err) {
-      setError("Google sign-in failed.");
-    }
+  // MOCK SOCIAL LOGIN
+  const handleSocialLogin = (platform) => {
+    setLoading(true);
+    setTimeout(() => {
+      setUser({ email: `social-${platform}@demo.com`, displayName: `${platform} User`, role: "user" });
+      setLoading(false);
+    }, 1000);
   };
 
-  const handleFacebookLogin = async () => {
-    setError("");
-    const facebookProvider = new FacebookAuthProvider();
-    try {
-      await signInWithPopup(auth, facebookProvider);
-    } catch (err) {
-      setError("Facebook sign-in failed.");
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="size-8 border-2 border-[#8B0000] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="size-8 border-2 border-[#8B0000] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
   return (
-    <div className="min-h-screen w-full bg-[#fafafa] flex flex-col items-center justify-center p-4 py-10 md:py-20 selection:bg-red-100">
+    <div className="min-h-screen w-full bg-[#fafafa] flex flex-col items-center justify-center p-4 selection:bg-red-100">
       <AnimatePresence mode="wait">
         {!user ? (
-          /* Reduced max-width for better tablet/desktop proportions */
-          <div className="w-full max-w-lg md:max-w-4xl">
-            
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mb-6 flex justify-between items-center px-4 md:hidden"
-            >
-              <Link to="/" className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-zinc-500">
-                <RiArrowLeftLine size={14} /> Back
-              </Link>
-            </motion.div>
-
-            <motion.div 
-              key="login-container"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="w-full bg-white rounded-[2.5rem] shadow-[0_30px_70px_-20px_rgba(0,0,0,0.12)] flex flex-col md:flex-row overflow-hidden border border-zinc-100"
-            >
-              {/* LEFT SIDE: BRANDING - Adjusted padding for tablet */}
-              <div className="hidden md:flex w-[35%] lg:w-[40%] bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] p-8 lg:p-10 flex-col justify-between text-white relative">
-                <div className="absolute inset-0 bg-black/5" />
+          <motion.div key="login-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full max-w-lg md:max-w-4xl">
+            <div className="w-full bg-white rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-zinc-100">
+              
+              {/* BRANDING SIDE */}
+              <div className="hidden md:flex w-[40%] bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] p-10 flex-col justify-between text-white relative">
                 <div className="relative z-10">
-                  <h2 className="text-2xl lg:text-3xl font-black uppercase tracking-tighter leading-none mb-3">
-                    Benny <br /> Events
-                  </h2>
+                  <h2 className="text-3xl font-black uppercase tracking-tighter leading-none mb-3">Benny <br /> Events</h2>
                   <div className="h-1 w-8 bg-white/40 rounded-full" />
                 </div>
                 <div className="relative z-10">
                   <RiDoubleQuotesL className="text-3xl opacity-20 mb-3" />
-                  <p className="text-base lg:text-lg font-medium tracking-tight italic opacity-90 leading-snug">
-                    {step === 1 ? "Access your command center to manage the magic." : "Identity verified. Enter credentials."}
+                  <p className="text-lg font-medium tracking-tight italic opacity-90">
+                    {step === 1 ? "Start your journey with us." : "Credentials verified. Access granted."}
                   </p>
                 </div>
               </div>
 
-              {/* RIGHT SIDE: FORMS - Removed min-h-125 to fix tablet gap */}
-              <div className="w-full md:w-[65%] lg:w-[60%] p-8 lg:p-12 flex flex-col justify-center bg-white">
-                
+              {/* FORM SIDE */}
+              <div className="w-full md:w-[60%] p-8 lg:p-12 bg-white">
                 <AnimatePresence mode="wait">
                   {step === 1 ? (
-                    <motion.div 
-                      key="step1"
-                      initial={{ opacity: 0, x: -15 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 15 }}
-                      className="w-full"
-                    >
+                    <motion.div key="s1" initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }}>
                       <div className="text-center mb-8">
                         <h2 className="text-xl font-black uppercase tracking-[0.4em] text-zinc-900 mb-1">Welcome</h2>
                         <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Select Method</p>
                       </div>
-
                       <div className="space-y-3">
-                        <button onClick={handleGoogleLogin} className="w-full py-4 bg-zinc-900 hover:bg-black rounded-xl flex items-center justify-center gap-3 font-black uppercase text-[10px] tracking-widest text-white transition-all active:scale-[0.98]">
+                        <button onClick={() => handleSocialLogin('Google')} className="w-full py-4 bg-zinc-900 rounded-xl flex items-center justify-center gap-3 font-black uppercase text-[10px] tracking-widest text-white transition-all active:scale-95">
                           <RiGoogleFill className="text-lg text-[#FF8C00]" /> Continue with Google
                         </button>
-
-                        <button onClick={handleFacebookLogin} className="w-full py-4 bg-[#1877F2] hover:brightness-110 rounded-xl flex items-center justify-center gap-3 font-black uppercase text-[10px] tracking-widest text-white transition-all active:scale-[0.98]">
+                        <button onClick={() => handleSocialLogin('Facebook')} className="w-full py-4 bg-[#1877F2] rounded-xl flex items-center justify-center gap-3 font-black uppercase text-[10px] tracking-widest text-white transition-all active:scale-95">
                           <RiFacebookFill className="text-xl" /> Continue with Facebook
                         </button>
-
+                        
                         <div className="flex items-center gap-3 my-6">
                           <div className="h-px grow bg-zinc-100" />
-                          <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">or</span>
+                          <span className="text-[9px] font-black text-zinc-300 uppercase">or</span>
                           <div className="h-px grow bg-zinc-100" />
                         </div>
 
-                        <button onClick={() => setStep(2)} className="w-full py-4 border-2 border-zinc-100 hover:border-red-600 text-zinc-900 rounded-xl flex items-center justify-center gap-3 font-black uppercase text-[10px] tracking-widest transition-all active:scale-[0.98]">
-                          <RiMailLine className="text-lg" /> Use Email Address
+                        <button onClick={() => setStep(2)} className="w-full py-4 border-2 border-zinc-100 text-zinc-900 rounded-xl flex items-center justify-center gap-3 font-black uppercase text-[10px] tracking-widest transition-all">
+                          <RiUserLine className="text-lg" /> Use Username
                         </button>
                       </div>
                     </motion.div>
                   ) : (
-                    <motion.div 
-                      key="step2"
-                      initial={{ opacity: 0, x: 15 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -15 }}
-                      className="w-full"
-                    >
-                      <button onClick={() => setStep(1)} className="mb-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#8B0000] hover:-translate-x-1 transition-transform">
-                        <RiArrowLeftLine /> Back to Social
+                    <motion.div key="s2" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -20, opacity: 0 }}>
+                      <button onClick={() => setStep(1)} className="mb-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#8B0000]">
+                        <RiArrowLeftLine /> Back
                       </button>
-
-                      <div className="text-center mb-8">
-                        <h2 className="text-xl font-black uppercase tracking-[0.4em] text-zinc-900 mb-1">Identity</h2>
-                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Enter Credentials</p>
-                      </div>
-
-                      <form className="space-y-4" onSubmit={handleEmailLogin}>
+                      
+                      <form className="space-y-4" onSubmit={handleMockLogin}>
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-black tracking-widest text-zinc-400 ml-1">Email</label>
+                          <label className="text-[10px] uppercase font-black text-zinc-400 tracking-widest">Username</label>
                           <div className="relative">
                             <RiUserLine className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
-                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl pl-11 pr-4 py-3.5 text-xs font-bold text-zinc-900 outline-none focus:bg-white focus:border-[#8B0000] transition-all" placeholder="Enter your mail" required />
+                            <input 
+                              type="text" 
+                              value={username} 
+                              onChange={(e) => setUsername(e.target.value)} 
+                              className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl pl-11 pr-4 py-3.5 text-xs font-bold outline-none focus:border-[#8B0000]" 
+                              placeholder="admin or user" 
+                              required 
+                            />
                           </div>
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-black tracking-widest text-zinc-400 ml-1">Password</label>
+                          <div className="flex justify-between items-center">
+                            <label className="text-[10px] uppercase font-black text-zinc-400 tracking-widest">Password</label>
+                            <button type="button" className="text-[9px] font-black text-[#8B0000] uppercase hover:underline">Forgot?</button>
+                          </div>
                           <div className="relative">
                             <RiLockPasswordLine className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
-                            <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl pl-11 pr-11 py-3.5 text-xs font-bold text-zinc-900 outline-none focus:bg-white focus:border-[#8B0000] transition-all" placeholder="••••••••" required />
-                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-[#8B0000]">
-                              {showPassword ? <RiEyeOffLine size={16} /> : <RiEyeLine size={16} />}
+                            <input 
+                              type={showPassword ? "text" : "password"} 
+                              value={password} 
+                              onChange={(e) => setPassword(e.target.value)} 
+                              className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl pl-11 pr-11 py-3.5 text-xs font-bold outline-none focus:border-[#8B0000]" 
+                              placeholder="admin or user" 
+                              required 
+                            />
+                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400">
+                              {showPassword ? <RiEyeOffLine /> : <RiEyeLine />}
                             </button>
                           </div>
                         </div>
 
-                        {error && <p className="text-[9px] text-white bg-red-600 font-bold uppercase tracking-widest py-2.5 px-4 rounded-lg text-center">{error}</p>}
-
-                        <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-linear-to-r from-[#8B0000] to-[#FF8C00] text-white rounded-xl font-black uppercase text-[11px] tracking-[0.2em] transition-all active:scale-[0.98] flex justify-center items-center mt-4 shadow-lg shadow-red-900/10">
-                          {isSubmitting ? <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : "Login"}
+                        {error && <p className="text-[9px] text-white bg-red-600 font-bold uppercase py-2 px-4 rounded-lg text-center">{error}</p>}
+                        
+                        <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-linear-to-r from-[#8B0000] to-[#FF8C00] text-white rounded-xl font-black uppercase text-[11px] tracking-widest transition-all active:scale-95 shadow-lg shadow-red-900/10">
+                          {isSubmitting ? "Authenticating..." : "Login"}
                         </button>
                       </form>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            </motion.div>
-          </div>
-        ) : (
-          /* PROFILE VIEW */
-          <motion.div 
-            key="profile-card"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-sm md:max-w-md bg-white border-b-8 border-[#8B0000] rounded-[2.5rem] p-10 md:p-12 shadow-2xl mx-4"
-          >
-            <div className="flex flex-col items-center text-center">
-              <div className="relative mb-6">
-                <div className="absolute inset-0 bg-linear-to-tr from-[#8B0000] to-[#FF8C00] rounded-full blur-xl opacity-20" />
-                <img src={user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} className="size-20 md:size-24 rounded-full border-4 border-white shadow-xl relative z-10 object-cover" alt="avatar" />
-                <RiVerifiedBadgeFill className="absolute -bottom-1 -right-1 text-[#FF8C00] bg-white rounded-full text-2xl md:text-3xl z-20" />
-              </div>
-              
-              <h1 className="text-xl md:text-2xl font-black uppercase tracking-tight text-zinc-900 leading-none">
-                {user.displayName || "Admin User"}
-              </h1>
-              <p className="text-[10px] font-black text-[#8B0000] uppercase tracking-[0.4em] mt-3 mb-8">Access Granted</p>
-
-              <div className="w-full space-y-3 mb-8 text-left">
-                <div className="bg-zinc-50 px-5 py-4 rounded-2xl flex justify-between items-center border border-zinc-100">
-                  <span className="text-[9px] font-black uppercase text-zinc-400 tracking-widest">Email</span>
-                  <span className="text-[11px] font-bold text-zinc-800 truncate ml-4">{user.email}</span>
-                </div>
-              </div>
-
-              <button 
-                onClick={() => { signOut(auth); setStep(1); }} 
-                className="flex items-center gap-3 px-10 py-4 rounded-full bg-zinc-900 text-white font-black uppercase text-[10px] tracking-widest hover:bg-red-600 transition-all active:scale-95"
-              >
-                <RiLogoutCircleRLine size={18} /> Sign Out
-              </button>
             </div>
           </motion.div>
+        ) : (
+          /* REDIRECT TO IMPORTED PAGES */
+          <div key="authenticated-view" className="w-full h-full">
+            {user.role === "admin" ? (
+              <Admin user={user} handleLogout={handleLogout} />
+            ) : (
+              <UserPanel user={user} handleLogout={handleLogout} />
+            )}
+          </div>
         )}
       </AnimatePresence>
     </div>
