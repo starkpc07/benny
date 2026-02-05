@@ -147,7 +147,7 @@ const Stalls = () => {
             <div className="hidden lg:block absolute left-10 top-1/2 -translate-y-1/2 z-30">
               <button
                 onClick={handlePrev}
-                className="size-14 rounded-full bg-white shadow-xl border border-slate-100 flex items-center justify-center hover:bg-black hover:text-white transition-all cursor-pointer"
+                className="size-14 rounded-full bg-white shadow-xl border border-slate-100 flex items-center justify-center hover:translate-x-1 transition-all cursor-pointer"
               >
                 <RiArrowLeftSLine size={32} />
               </button>

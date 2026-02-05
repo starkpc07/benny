@@ -30,8 +30,8 @@ const ScrollingRow = memo(({ images, speed, size }) => {
   const x = useMotionValue(0);
   const [isDragging, setIsDragging] = useState(false);
   const isAnimating = useRef(false);
+  const controls = useRef(null); // Ref to store the current animation controls
 
-  // Triple images ensures a seamless loop even on the widest constrained container
   const duplicatedImages = useMemo(() => [...images, ...images, ...images], [images]);
   const singleSetWidth = images.length * (size.width + size.gap);
 
@@ -41,24 +41,30 @@ const ScrollingRow = memo(({ images, speed, size }) => {
   };
 
   useAnimationFrame((_, delta) => {
+    // Disable auto-scroll completely during interaction to prevent "fighting" the user's finger
     if (isDragging || isAnimating.current) return;
     const moveBy = speed * (delta / 16); 
     x.set(wrap(x.get() + moveBy));
   });
 
   const handleDragStart = () => {
+    // Stop any active momentum animation immediately on touch
+    if (controls.current) controls.current.stop();
     setIsDragging(true);
     isAnimating.current = false;
   };
 
   const handleDragEnd = (_, info) => {
     setIsDragging(false);
-    if (Math.abs(info.velocity.x) > 10) {
+    
+    // Check if there is enough velocity for momentum
+    if (Math.abs(info.velocity.x) > 20) {
       isAnimating.current = true;
-      animate(x, x.get() + info.velocity.x * 0.2, {
+      controls.current = animate(x, x.get() + info.velocity.x * 0.15, {
         type: "spring",
-        stiffness: 40,
-        damping: 20,
+        stiffness: 60, // Higher stiffness for a more "connected" feel
+        damping: 25,
+        restDelta: 0.5,
         onUpdate: (latest) => x.set(wrap(latest)),
         onComplete: () => { isAnimating.current = false; }
       });
@@ -66,15 +72,29 @@ const ScrollingRow = memo(({ images, speed, size }) => {
   };
 
   return (
-    <div className="group overflow-hidden will-change-transform py-2">
+    <div 
+      className="group overflow-hidden py-2 touch-pan-y" 
+      style={{ overscrollBehaviorX: 'none' }} // Prevents mobile "back/forward" browser lag
+    >
       <motion.div
-        style={{ x, touchAction: "pan-y" }}
+        style={{ 
+          x, 
+          touchAction: "pan-y",
+          willChange: "transform" // Optimizes GPU rendering
+        }}
         drag="x"
-        dragPointerCapture={false} 
+        dragDirectionLock
+        // Providing wide constraints prevents the "stuck" feeling on mobile
+        dragConstraints={{ left: -singleSetWidth, right: singleSetWidth }}
+        dragElastic={0.02}
         onDragStart={handleDragStart}
-        onDrag={() => x.set(wrap(x.get()))}
+        onDrag={() => {
+          // Manual wrap during drag ensures the slider never hits a "wall"
+          const currentX = x.get();
+          x.set(wrap(currentX));
+        }}
         onDragEnd={handleDragEnd}
-        className="flex flex-row items-start w-max cursor-grab active:cursor-grabbing transform-gpu"
+        className="flex flex-row items-start w-max cursor-grab active:cursor-grabbing"
       >
         {duplicatedImages.map((img, index) => (
           <div
@@ -91,7 +111,7 @@ const ScrollingRow = memo(({ images, speed, size }) => {
                 backgroundPosition: "center",
               }}
             />
-            <p className="mt-4 text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-zinc-400">
+            <p className="mt-4 text-[15px] md:text-lg font-black uppercase tracking-[0.4em] text-zinc-600">
               {img.name}
             </p>
           </div>
@@ -113,7 +133,7 @@ export default function Gallery() {
       } else if (iw < 1280) {
         setSize({ width: 360, gap: 24 }); 
       } else {
-        setSize({ width: 440, gap: 32 }); // Optimized for 2xl container
+        setSize({ width: 440, gap: 32 }); 
       }
     };
     handleResize();
@@ -143,13 +163,11 @@ export default function Gallery() {
         </div>
       </div>
 
-      {/* GALLERY AREA: Constrained for Desktop clarity */}
-      <div className="relative w-full max-w-screen-2xl">
+      <div className="relative w-full max-w-screen-2xl lg:px-12">
         <div className="flex flex-col gap-6 md:gap-14">
           <ScrollingRow images={row1} speed={-0.5} size={size} />
           <ScrollingRow images={row2} speed={0.5} size={size} />
         </div>
-
       </div>
     </section>
   );
