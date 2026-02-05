@@ -29,25 +29,21 @@ const RAW_IMAGES = [
 const ScrollingRow = ({ images, speed, size }) => {
   const x = useMotionValue(0);
   const [isDragging, setIsDragging] = useState(false);
-  
-  // Ref to track if momentum animation (flick) is running
   const isAnimating = useRef(false);
 
   // Triple duplication ensures enough buffer for high-speed flicks
   const duplicatedImages = useMemo(() => [...images, ...images, ...images], [images]);
   const singleSetWidth = images.length * (size.width + size.gap);
 
-  // Seamless wrapping function
   const wrap = (v) => {
     const range = singleSetWidth;
     return ((((v % range) - range) % range));
   };
 
   useAnimationFrame((time, delta) => {
-    // ONLY stop auto-move if user is manually dragging or the flick animation is active
+    // Only move automatically if NOT being touched or flicked
     if (isDragging || isAnimating.current) return;
     
-    // delta ensures speed is consistent across 60Hz and 144Hz monitors
     const moveBy = speed * (delta / 16); 
     x.set(wrap(x.get() + moveBy));
   });
@@ -60,7 +56,7 @@ const ScrollingRow = ({ images, speed, size }) => {
   const handleDragEnd = (event, info) => {
     setIsDragging(false);
     
-    // If user "flicks" the row, trigger spring physics
+    // Smooth momentum hand-off
     if (Math.abs(info.velocity.x) > 10) {
       isAnimating.current = true;
       
@@ -71,22 +67,26 @@ const ScrollingRow = ({ images, speed, size }) => {
         restDelta: 0.1,
         onUpdate: (latest) => x.set(wrap(latest)),
         onComplete: () => {
-          isAnimating.current = false; l
+          isAnimating.current = false;
         }
       });
     }
   };
 
   return (
-    <div className="group cursor-grab active:cursor-grabbing overflow-hidden will-change-transform">
+    <div className="group overflow-hidden will-change-transform">
       <motion.div
-        style={{ x, touchAction: "pan-y" }}
+        style={{ 
+          x, 
+          touchAction: "pan-y" // CRITICAL: Allows vertical page scroll on mobile
+        }}
         drag="x"
+        dragDirectionLock // Prevents diagonal "stuck" feeling
         dragConstraints={{ left: -Infinity, right: Infinity }}
         onDragStart={handleDragStart}
         onDrag={() => x.set(wrap(x.get()))}
         onDragEnd={handleDragEnd}
-        className="flex flex-row items-start w-max"
+        className="flex flex-row items-start w-max cursor-grab active:cursor-grabbing"
       >
         {duplicatedImages.map((img, index) => (
           <div
@@ -129,9 +129,8 @@ export default function Gallery() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Defined rows
   const row1 = useMemo(() => RAW_IMAGES.slice(0, 5), []);
-  const row2 = useMemo(() => RAW_IMAGES.slice(6, 9), []);
+  const row2 = useMemo(() => RAW_IMAGES.slice(5, 9), []);
 
   return (
     <section className="mx-auto w-full max-w-7xl overflow-hidden py-16 flex flex-col gap-12">
