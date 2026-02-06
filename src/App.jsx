@@ -10,7 +10,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Stalls from './pages/Stalls';
 import Gallery from './components/Gallery';
-import Login from './pages/Login';
+import Admin from './pages/Admin';
 import Book from './pages/Book';
 import Background from './components/Background'; 
 
@@ -45,7 +45,7 @@ const App = () => {
                   <section id="contact"><Contact /></section>
                 </div>
               } />
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<Admin />} />
               <Route path="/book" element={<Book />} />
             </Routes>
           </main>

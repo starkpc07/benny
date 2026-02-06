@@ -142,7 +142,7 @@ export default function Gallery() {
   }, []);
 
   const row1 = useMemo(() => RAW_IMAGES.slice(0, 5), []);
-  const row2 = useMemo(() => RAW_IMAGES.slice(5, 9), []);
+  const row2 = useMemo(() => RAW_IMAGES.slice(6, 9), []);
 
   return (
     <section className="w-full py-16 md:py-32 flex flex-col items-center overflow-hidden selection:bg-red-600 selection:text-white">
