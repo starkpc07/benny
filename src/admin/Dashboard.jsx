@@ -38,24 +38,29 @@ const Dashboard = () => {
       initial={{ opacity: 0, y: 20 }} 
       animate={{ opacity: 1, y: 0 }} 
       transition={{ duration: 0.5 }}
-      className="flex flex-col space-y-4 pb-10 w-full max-w-7xl mx-auto bg-zinc-50/50 min-h-screen px-4 pt-4"
+      /* Reduced gap-4 to sm:gap-2 lg:gap-1 to pull sections closer on Desktop/Tablet */
+      className="grid grid-cols-1 gap-4 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-5xl mx-auto bg-zinc-50/50 px-4 pt-4 pb-10"
     >
-      {/* ROW 1: STATS CARDS */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
-        <StatCard icon={<RiPieChartLine />} label="Active" value="12" color="text-[#8B0000]" />
-        <StatCard icon={<RiStackLine />} label="Pending" value="05" color="text-[#FF8C00]" />
-        <StatCard icon={<RiCalendarCheckLine />} label="Upcoming" value="24" color="text-zinc-900" />
+      
+      {/* --- SECTION 1: STATS & MONEY (Mobile: First | Desktop: Second) --- */}
+      <div className="flex flex-col space-y-5 lg:order-2 lg:mt-2">
+        {/* ROW 1: STATS CARDS */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+          <StatCard icon={<RiPieChartLine />} label="Active" value="12" color="text-[#8B0000]" />
+          <StatCard icon={<RiStackLine />} label="Pending" value="05" color="text-[#FF8C00]" />
+          <StatCard icon={<RiCalendarCheckLine />} label="Upcoming" value="24" color="text-zinc-900" />
+        </div>
+
+        {/* ROW 2: MONEY CARDS */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <MoneyCard label="Balance" value="₹2,000" icon={<RiMoneyDollarCircleLine />} type="balance" />
+          <MoneyCard label="Growth" value="₹14,000" icon={<RiArrowRightUpLine />} type="growth" />
+        </div>
       </div>
 
-      {/* ROW 2: MONEY CARDS */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
-        <MoneyCard label="Balance" value="₹12.4k" icon={<RiMoneyDollarCircleLine />} type="balance" />
-        <MoneyCard label="Growth" value="₹142k" icon={<RiArrowRightUpLine />} type="growth" />
-      </div>
-
-      {/* ROW 3: PIE CHART SECTION */}
-      <div className="w-full">
-        <div className="bg-zinc-900 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl p-5 md:p-8 lg:p-10 flex flex-col gap-6">
+      {/* --- SECTION 2: PIE CHART SECTION (Mobile: Second | Desktop: First) --- */}
+      <div className="w-full lg:order-1">
+        <div className="bg-zinc-900 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl p-5 md:p-6 lg:p-7 flex flex-col gap-5">
           
           <div className="w-full flex justify-between items-center">
             <h4 className="text-[10px] font-black text-[#FF8C00] uppercase tracking-[0.2em]">Service Distribution</h4>
@@ -65,22 +70,26 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="flex flex-col xl:flex-row items-center justify-between w-full gap-8">
-            <div className="w-full xl:w-1/2 h-[280px] sm:h-[320px] lg:h-[380px] relative">
-              {/* Logo with Framer Motion for entrance sync */}
+          <div className="flex flex-col xl:flex-row items-center justify-between w-full gap-6">
+            <div className="w-full xl:w-1/2 h-[260px] sm:h-[280px] lg:h-[320px] relative">
               <motion.div 
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.5, type: "spring", stiffness: 260, damping: 20 }}
+                /* Reset border when clicking logo area */
+                onClick={() => setActiveIndex(null)}
                 className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
               >
-                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-zinc-800/50 rounded-full p-2 flex items-center justify-center backdrop-blur-sm border border-white/10">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-zinc-800/50 rounded-full p-2 flex items-center justify-center backdrop-blur-sm border border-white/10 pointer-events-auto">
                   <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
                 </div>
               </motion.div>
               
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart 
+                  /* Reset border when clicking empty space in the chart container */
+                  onClick={() => setActiveIndex(null)}
+                >
                   <defs>
                     <style>{`
                       .recharts-sector { 
@@ -89,9 +98,7 @@ const Dashboard = () => {
                         cursor: pointer;
                         transition: filter 200ms ease-in-out;
                       }
-                      .recharts-sector:active, .recharts-sector:hover {
-                        filter: brightness(1.2);
-                      }
+                      .recharts-sector:active, .recharts-sector:hover { filter: brightness(1.2); }
                       text.recharts-text { fill: white !important; }
                     `}</style>
                   </defs>
@@ -104,9 +111,11 @@ const Dashboard = () => {
                     stroke="none"
                     onMouseEnter={(_, index) => setActiveIndex(index)}
                     onMouseLeave={() => setActiveIndex(null)}
-                    onClick={(_, index) => setActiveIndex(index)}
-                    
-                    /* LOAD ANIMATION SETTINGS */
+                    /* e.stopPropagation prevents the Chart's onClick from firing when a slice is clicked */
+                    onClick={(e, index) => {
+                      e.stopPropagation();
+                      setActiveIndex(index);
+                    }}
                     isAnimationActive={true}
                     animationBegin={200}
                     animationDuration={1200}
@@ -116,7 +125,7 @@ const Dashboard = () => {
                       <Cell 
                         key={`cell-${index}`} 
                         fill={entry.color} 
-                        cornerRadius={8}
+                        cornerRadius={6}
                       />
                     ))}
                   </Pie>
@@ -128,22 +137,21 @@ const Dashboard = () => {
                         borderRadius: '12px', 
                         color: '#fff',
                     }} 
-                    itemStyle={{ fontSize: '12px', textTransform: 'uppercase', color: '#fff' }} 
+                    itemStyle={{ fontSize: '10px', textTransform: 'uppercase', color: '#fff' }} 
                   />
                 </PieChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="w-full xl:w-1/2 flex flex-col gap-4">
-              {/* Animated List Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 gap-2 sm:gap-3">
+            <div className="w-full xl:w-1/2 flex flex-col gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 gap-2">
                 {PIE_DATA.map((item, index) => (
                   <motion.div 
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 * index }}
                     key={item.name} 
-                    className={`flex flex-col p-3 rounded-xl border transition-all duration-200 ${
+                    className={`flex flex-col p-2.5 rounded-xl border transition-all duration-200 ${
                         activeIndex === index 
                         ? 'bg-white/20 border-white/30 scale-[1.02] shadow-lg shadow-black/20' 
                         : 'bg-white/5 border-white/5'
@@ -151,27 +159,26 @@ const Dashboard = () => {
                   >
                     <div className="flex items-center gap-1.5 mb-1">
                       <div className="size-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                      <span className="text-[8px] md:text-[10px] text-zinc-400 font-bold uppercase truncate">{item.name}</span>
+                      <span className="text-[8px] md:text-[9px] text-zinc-400 font-bold uppercase truncate">{item.name}</span>
                     </div>
-                    <span className="text-white font-black text-sm lg:text-base">{item.value}</span>
+                    <span className="text-white font-black text-xs lg:text-sm">{item.value}</span>
                   </motion.div>
                 ))}
               </div>
 
-              {/* Leader Banner with slight delay */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.8 }}
-                className="mt-2 p-4 rounded-2xl bg-gradient-to-r from-[#FF8C00]/20 to-transparent border-l-4 border-[#FF8C00] flex items-center justify-between"
+                className="mt-1 p-3 rounded-2xl bg-gradient-to-r from-[#FF8C00]/20 to-transparent border-l-4 border-[#FF8C00] flex items-center justify-between"
               >
                 <div>
-                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Current Leader</p>
-                  <h5 className="text-white text-lg lg:text-xl font-black">{TOP_SERVICE.name}</h5>
+                  <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Current Leader</p>
+                  <h5 className="text-white text-base lg:text-lg font-black">{TOP_SERVICE.name}</h5>
                 </div>
                 <div className="text-right">
-                  <p className="text-[#FF8C00] text-xl lg:text-2xl font-black">{TOP_SERVICE.value}</p>
-                  <p className="text-[8px] font-bold text-zinc-500 uppercase">Total Events</p>
+                  <p className="text-[#FF8C00] text-lg lg:text-xl font-black">{TOP_SERVICE.value}</p>
+                  <p className="text-[7px] font-bold text-zinc-500 uppercase">Total Events</p>
                 </div>
               </motion.div>
             </div>
@@ -182,21 +189,21 @@ const Dashboard = () => {
   );
 };
 
-/* --- SUBCOMPONENTS (StatCard and MoneyCard remain the same) --- */
+/* --- SUBCOMPONENTS --- */
 const MoneyCard = ({ label, value, icon, type }) => {
   const isGrowth = type === "growth";
   return (
     <motion.div 
       whileHover={{ scale: 1.02 }}
-      className={`flex items-center justify-between p-4 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2.5rem] shadow-xl border border-white/10 ${
+      className={`flex items-center justify-between p-4 sm:p-5 lg:p-6 rounded-2xl lg:rounded-[2rem] shadow-xl border border-white/10 ${
       isGrowth ? "bg-gradient-to-br from-[#FF8C00] to-[#cc7000] text-white" : "bg-gradient-to-br from-[#8B0000] to-[#660000] text-white" 
     }`}>
       <div className="min-w-0 pr-2">
-        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-1 opacity-80">{label}</p>
-        <h3 className="text-lg sm:text-2xl lg:text-4xl font-black truncate tracking-tight">{value}</h3>
+        <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] mb-1 opacity-80">{label}</p>
+        <h3 className="text-lg sm:text-xl lg:text-2xl font-black truncate tracking-tight">{value}</h3>
       </div>
-      <div className="bg-white/20 p-2 sm:p-3 lg:p-4 rounded-xl backdrop-blur-md shrink-0">
-        {React.cloneElement(icon, { size: 24 })}
+      <div className="bg-white/20 p-2 sm:p-3 rounded-xl backdrop-blur-md shrink-0">
+        {React.cloneElement(icon, { size: 20 })}
       </div>
     </motion.div>
   );
@@ -205,16 +212,16 @@ const MoneyCard = ({ label, value, icon, type }) => {
 const StatCard = ({ icon, label, value, color }) => (
   <motion.div 
     whileHover={{ y: -5 }}
-    className="bg-white p-3 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] border border-zinc-100 shadow-sm flex flex-col items-center text-center sm:flex-row sm:text-left sm:gap-3 lg:gap-4 w-full"
+    className="bg-white p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl lg:rounded-[1.5rem] border border-zinc-100 shadow-sm flex flex-col items-center text-center sm:flex-row sm:text-left sm:gap-3 w-full"
   >
-    <div className={`${color} text-lg sm:text-xl lg:text-2xl bg-zinc-50 p-2 sm:p-3 lg:p-4 rounded-xl lg:rounded-2xl shrink-0 mb-1 sm:mb-0`}>
+    <div className={`${color} text-base sm:text-lg lg:text-xl bg-zinc-50 p-2 sm:p-3 rounded-xl shrink-0 mb-1 sm:mb-0`}>
       {icon}
     </div>
     <div className="min-w-0">
-      <p className="text-[6px] sm:text-[8px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-tighter sm:tracking-widest leading-none mb-0.5 sm:mb-1 truncate">
+      <p className="text-[6px] sm:text-[8px] lg:text-[9px] font-black text-zinc-400 uppercase tracking-tighter sm:tracking-widest leading-none mb-0.5 truncate">
         {label}
       </p>
-      <h3 className="text-xs sm:text-lg lg:text-2xl font-black text-zinc-900 leading-tight truncate">
+      <h3 className="text-xs sm:text-base lg:text-xl font-black text-zinc-900 leading-tight truncate">
         {value}
       </h3>
     </div>
