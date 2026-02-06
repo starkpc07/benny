@@ -57,16 +57,16 @@ const Admin = ({ user, handleLogout }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 bg-black/60 z-[400] md:hidden backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 z-400 md:hidden backdrop-blur-sm"
           />
         )}
       </AnimatePresence>
 
-      <main className="flex-grow pt-24 md:pt-36 pb-10 px-4 max-w-[1440px] md:px-6 md:mx-auto w-full">
+      <main className="grow pt-24 md:pt-36 pb-10 px-4 max-w-360 md:px-6 md:mx-auto w-full">
         
         {/* MOBILE BRAND HEADER */}
-        <div className="flex md:hidden bg-white p-5 rounded-[2rem] border border-zinc-100 shadow-sm items-center gap-4 mb-8">
-          <div className="size-11 rounded-xl bg-gradient-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] flex items-center justify-center text-white shadow-lg shrink-0">
+        <div className="flex md:hidden bg-white p-5 rounded-4xl border border-zinc-100 shadow-sm items-center gap-4 mb-8">
+          <div className="size-11 rounded-xl bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] flex items-center justify-center text-white shadow-lg shrink-0">
             <RiFlashlightFill size={22} />
           </div>
           <div className="min-w-0">
@@ -79,9 +79,9 @@ const Admin = ({ user, handleLogout }) => {
 
         <div className="flex flex-col md:flex-row gap-6 lg:gap-10 items-start">
           
-          <aside className="hidden md:block md:w-[260px] lg:w-[350px] shrink-0 space-y-6 sticky top-36">
+          <aside className="hidden md:block md:w-65 lg:w-87.5 shrink-0 space-y-6 sticky top-36">
             <div className="bg-white p-6 rounded-[2.5rem] border border-zinc-100 shadow-sm flex items-center gap-4">
-              <div className="size-12 rounded-xl bg-gradient-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] flex items-center justify-center text-white shadow-lg shrink-0">
+              <div className="size-12 rounded-xl bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] flex items-center justify-center text-white shadow-lg shrink-0">
                 <RiFlashlightFill size={26} />
               </div>
               <div className="min-w-0">

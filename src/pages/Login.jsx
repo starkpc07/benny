@@ -100,7 +100,7 @@ const Login = () => {
             className="w-full max-w-lg md:max-w-4xl"
           >
             <div className="w-full bg-white rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-zinc-100">
-              <div className="hidden md:flex w-[40%] bg-gradient-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] p-10 flex-col justify-between text-white relative">
+              <div className="hidden md:flex w-[40%] bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] p-10 flex-col justify-between text-white relative">
                 <div>
                   <h2 className="text-3xl font-black uppercase tracking-tighter leading-none mb-3">Benny <br /> Events</h2>
                   <div className="h-1 w-8 bg-white/40 rounded-full" />
@@ -113,7 +113,7 @@ const Login = () => {
                 </div>
               </div>
 
-              <div className="w-full md:w-[60%] p-8 lg:p-12 bg-white min-h-[500px] flex flex-col justify-center">
+              <div className="w-full md:w-[60%] p-8 lg:p-12 bg-white min-h-125 flex flex-col justify-center">
                 <AnimatePresence mode="wait">
                   {step === 1 ? (
                     <motion.div key="social" initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }}>
@@ -140,7 +140,7 @@ const Login = () => {
                     </motion.div>
                   ) : (
                     <motion.div key="email" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -20, opacity: 0 }}>
-                      <button onClick={() => setStep(1)} className="mb-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#8B0000] hover:translate-x-[-4px] transition-transform">
+                      <button onClick={() => setStep(1)} className="mb-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#8B0000] hover:-translate-x-1 transition-transform">
                         <RiArrowLeftLine /> Back to methods
                       </button>
                       <form className="space-y-4" onSubmit={handleEmailLogin}>
@@ -174,7 +174,7 @@ const Login = () => {
                             {error}
                           </motion.p>
                         )}
-                        <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-gradient-to-r from-[#8B0000] to-[#FF8C00] text-white rounded-xl font-black uppercase text-[11px] tracking-widest transition-all active:scale-95 shadow-lg shadow-red-900/10">
+                        <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-linear-to-r from-[#8B0000] to-[#FF8C00] text-white rounded-xl font-black uppercase text-[11px] tracking-widest transition-all active:scale-95 shadow-lg shadow-red-900/10">
                           {isSubmitting ? "Authenticating..." : "Login to Portal"}
                         </button>
                       </form>

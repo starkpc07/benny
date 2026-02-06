@@ -37,7 +37,7 @@ const FloatingMenu = ({
   };
 
   return (
-    <div className="md:hidden fixed bottom-8 right-6 z-[500] flex flex-col items-end">
+    <div className="md:hidden fixed bottom-8 right-6 z-500 flex flex-col items-end">
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
@@ -55,10 +55,10 @@ const FloatingMenu = ({
                   setActiveTab(item.id); 
                   setIsMobileMenuOpen(false); 
                 }}
-                className={`flex items-center justify-end gap-4 px-6 py-4 rounded-full shadow-xl min-w-[180px] transition-colors duration-200 active:scale-95 ${
+                className={`flex items-center justify-end gap-4 px-6 py-4 rounded-full shadow-xl min-w-45 transition-colors duration-200 active:scale-95 ${
                   activeTab === item.id 
                     ? "bg-zinc-900 text-white" 
-                    : "bg-gradient-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] text-white"
+                    : "bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] text-white"
                 }`}
               >
                 <span className="text-[11px] font-black uppercase tracking-[0.2em]">{item.id}</span>
@@ -70,10 +70,10 @@ const FloatingMenu = ({
             <motion.button 
               variants={itemVariants}
               onClick={() => {
-                setIsMobileMenuOpen(false); // 1. Close the menu first for smooth exit
-                handleLogout();             // 2. Trigger parent logout logic
+                setIsMobileMenuOpen(false); 
+                handleLogout();             
               }}
-              className="flex items-center justify-end gap-4 px-6 py-4 rounded-full shadow-xl min-w-[180px] bg-white text-red-600 font-black active:scale-95"
+              className="flex items-center justify-end gap-4 px-6 py-4 rounded-full shadow-xl min-w-45 bg-white text-red-600 font-black active:scale-95"
             >
               <span className="text-[11px] font-black uppercase tracking-[0.2em]">Logout</span>
               <RiLogoutBoxRLine size={22} />

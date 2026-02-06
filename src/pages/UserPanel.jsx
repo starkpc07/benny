@@ -28,7 +28,7 @@ const UserPanel = ({ user }) => {
       >
         
         {/* TOP PROFILE SECTION */}
-        <div className="bg-white rounded-[2rem] p-6 md:p-10 shadow-sm border border-zinc-100 flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
+        <div className="bg-white rounded-4xl p-6 md:p-10 shadow-sm border border-zinc-100 flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative">
               <div className="absolute inset-0 bg-orange-500 rounded-full blur-2xl opacity-10" />
@@ -61,7 +61,7 @@ const UserPanel = ({ user }) => {
             onClick={handleBookClick}
             className="group relative w-auto overflow-hidden py-5 px-10 md:px-14 rounded-full font-black uppercase text-[16px] md:text-[18px] tracking-[0.2em] text-white shadow-2xl transition-all active:scale-95 flex justify-center items-center gap-3 cursor-pointer"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] bg-[length:200%_100%] transition-all duration-700 group-hover:bg-[100%_0%]" />
+            <div className="absolute inset-0 bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] bg-size-[200%_100%] transition-all duration-700 group-hover:bg-position-[100%_0%]" />
             <span className="relative flex items-center justify-center gap-3 px-4">
               Book Events <RiCalendarCheckLine className="text-2xl md:text-3xl" />
             </span>
@@ -81,7 +81,7 @@ const UserPanel = ({ user }) => {
             
             <div className="grid gap-4">
                 {["Wedding", "Corporate"].map((type, index) => (
-                    <div key={index} className="bg-white p-6 rounded-[1.5rem] border border-zinc-100 flex items-center justify-between group hover:shadow-md transition-all">
+                    <div key={index} className="bg-white p-6 rounded-3xl border border-zinc-100 flex items-center justify-between group hover:shadow-md transition-all">
                         <div className="flex items-center gap-5">
                             <div className="size-14 bg-zinc-900 rounded-2xl flex flex-col items-center justify-center text-white font-black text-[10px] leading-tight">
                                 <span className="text-orange-500">FEB</span>
@@ -106,9 +106,9 @@ const UserPanel = ({ user }) => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleBookClick}
-          className="relative px-4 max-w-md overflow-hidden py-4 px-8 rounded-full font-black uppercase text-[14px] tracking-[0.15em] text-white shadow-[0_20px_50px_rgba(139,0,0,0.3)] flex justify-center items-center gap-3 cursor-pointer"
+          className="relative px-4 max-w-md overflow-hidden py-4 rounded-full font-black uppercase text-[14px] tracking-[0.15em] text-white shadow-[0_20px_50px_rgba(139,0,0,0.3)] flex justify-center items-center gap-3 cursor-pointer"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] bg-[length:200%_100%] animate-gradient-x" />
+          <div className="absolute inset-0 bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] bg-size-[200%_100%] animate-gradient-x" />
           <span className="relative flex items-center justify-center gap-2">
             Book Events <RiCalendarCheckLine size={24} />
           </span>

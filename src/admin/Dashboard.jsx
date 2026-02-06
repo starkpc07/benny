@@ -60,7 +60,7 @@ const Dashboard = () => {
 
       {/* --- SECTION 2: PIE CHART SECTION (Mobile: Second | Desktop: First) --- */}
       <div className="w-full lg:order-1">
-        <div className="bg-zinc-900 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl p-5 md:p-6 lg:p-7 flex flex-col gap-5">
+        <div className="bg-zinc-900 rounded-4xl lg:rounded-[2.5rem] shadow-2xl p-5 md:p-6 lg:p-7 flex flex-col gap-5">
           
           <div className="w-full flex justify-between items-center">
             <h4 className="text-[10px] font-black text-[#FF8C00] uppercase tracking-[0.2em]">Service Distribution</h4>
@@ -71,7 +71,7 @@ const Dashboard = () => {
           </div>
 
           <div className="flex flex-col xl:flex-row items-center justify-between w-full gap-6">
-            <div className="w-full xl:w-1/2 h-[260px] sm:h-[280px] lg:h-[320px] relative">
+            <div className="w-full xl:w-1/2 h-65 sm:h-70 lg:h-80 relative">
               <motion.div 
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -170,7 +170,7 @@ const Dashboard = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.8 }}
-                className="mt-1 p-3 rounded-2xl bg-gradient-to-r from-[#FF8C00]/20 to-transparent border-l-4 border-[#FF8C00] flex items-center justify-between"
+                className="mt-1 p-3 rounded-2xl bg-linear-to-r from-[#FF8C00]/20 to-transparent border-l-4 border-[#FF8C00] flex items-center justify-between"
               >
                 <div>
                   <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Current Leader</p>
@@ -195,8 +195,8 @@ const MoneyCard = ({ label, value, icon, type }) => {
   return (
     <motion.div 
       whileHover={{ scale: 1.02 }}
-      className={`flex items-center justify-between p-4 sm:p-5 lg:p-6 rounded-2xl lg:rounded-[2rem] shadow-xl border border-white/10 ${
-      isGrowth ? "bg-gradient-to-br from-[#FF8C00] to-[#cc7000] text-white" : "bg-gradient-to-br from-[#8B0000] to-[#660000] text-white" 
+      className={`flex items-center justify-between p-4 sm:p-5 lg:p-6 rounded-2xl lg:rounded-4xl shadow-xl border border-white/10 ${
+      isGrowth ? "bg-linear-to-br from-[#FF8C00] to-[#cc7000] text-white" : "bg-linear-to-br from-[#8B0000] to-[#660000] text-white" 
     }`}>
       <div className="min-w-0 pr-2">
         <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] mb-1 opacity-80">{label}</p>
@@ -212,7 +212,7 @@ const MoneyCard = ({ label, value, icon, type }) => {
 const StatCard = ({ icon, label, value, color }) => (
   <motion.div 
     whileHover={{ y: -5 }}
-    className="bg-white p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl lg:rounded-[1.5rem] border border-zinc-100 shadow-sm flex flex-col items-center text-center sm:flex-row sm:text-left sm:gap-3 w-full"
+    className="bg-white p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl lg:rounded-3xl border border-zinc-100 shadow-sm flex flex-col items-center text-center sm:flex-row sm:text-left sm:gap-3 w-full"
   >
     <div className={`${color} text-base sm:text-lg lg:text-xl bg-zinc-50 p-2 sm:p-3 rounded-xl shrink-0 mb-1 sm:mb-0`}>
       {icon}
