@@ -1,31 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   ResponsiveContainer, 
-  AreaChart, 
-  Area, 
-  XAxis,
-  Tooltip, 
   PieChart, 
   Pie, 
-  Cell 
+  Cell,
+  Tooltip 
 } from "recharts";
 import { 
   RiPieChartLine, 
   RiStackLine, 
   RiCalendarCheckLine, 
   RiMoneyDollarCircleLine, 
-  RiLineChartLine 
+  RiArrowRightUpLine
 } from "react-icons/ri";
 
-const REVENUE_DATA = [
-  { month: "Jan", amount: 4000 },
-  { month: "Feb", amount: 3000 },
-  { month: "Mar", amount: 5000 },
-  { month: "Apr", amount: 4500 },
-  { month: "May", amount: 6000 },
-  { month: "Jun", amount: 5500 },
-];
+import logoImg from "../assets/logo.webp";
 
 const PIE_DATA = [
   { name: "Wedding", value: 400, color: "#8B0000" },
@@ -36,142 +26,199 @@ const PIE_DATA = [
   { name: "Decor", value: 200, color: "#f97316" },
 ];
 
+const TOP_SERVICE = PIE_DATA.reduce((prev, current) => 
+  (prev.value > current.value) ? prev : current
+);
+
 const Dashboard = () => {
+  const [activeIndex, setActiveIndex] = useState(null);
+
   return (
     <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      className="space-y-4 md:space-y-6 pb-10 w-full max-w-full overflow-x-hidden px-1"
+      initial={{ opacity: 0, y: 20 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      transition={{ duration: 0.5 }}
+      className="flex flex-col space-y-4 pb-10 w-full max-w-7xl mx-auto bg-zinc-50/50 min-h-screen px-4 pt-4"
     >
-      {/* 1. MOBILE ONLY: MONEY FOOTER ON TOP */}
-      <div className="flex md:hidden flex-row gap-2 overflow-x-auto no-scrollbar pb-2">
-        <MoneyCard 
-          label="Balance" 
-          value="$12,400" 
-          icon={<RiMoneyDollarCircleLine size={20} />} 
-          isDark={false} 
-        />
-        <MoneyCard 
-          label="Annual" 
-          value="$142,850" 
-          icon={<RiLineChartLine size={20} />} 
-          isDark={true} 
-        />
+      {/* ROW 1: STATS CARDS */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
+        <StatCard icon={<RiPieChartLine />} label="Active" value="12" color="text-[#8B0000]" />
+        <StatCard icon={<RiStackLine />} label="Pending" value="05" color="text-[#FF8C00]" />
+        <StatCard icon={<RiCalendarCheckLine />} label="Upcoming" value="24" color="text-zinc-900" />
       </div>
 
-      {/* 2. STATS SECTION */}
-      <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
-        
-        {/* STATS ROW (Top on Mobile, Sidebar on Desktop) */}
-        <div className="order-1 lg:order-2 w-full lg:w-[240px] flex flex-row lg:flex-col gap-2 md:gap-4 overflow-x-auto lg:overflow-visible no-scrollbar pb-2 lg:pb-0">
-          <StatCard icon={<RiPieChartLine />} label="Active" value="12" color="text-[#8B0000]" />
-          <StatCard icon={<RiStackLine />} label="Pending" value="05" color="text-[#FF8C00]" />
-          <StatCard icon={<RiCalendarCheckLine />} label="Upcoming" value="24" color="text-zinc-900" />
-        </div>
+      {/* ROW 2: MONEY CARDS */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+        <MoneyCard label="Balance" value="₹12.4k" icon={<RiMoneyDollarCircleLine />} type="balance" />
+        <MoneyCard label="Growth" value="₹142k" icon={<RiArrowRightUpLine />} type="growth" />
+      </div>
 
-        {/* 3. CHARTS SECTION (Middle) */}
-        <div className="order-2 lg:order-1 flex-grow space-y-4 w-full lg:w-[calc(100%-260px)]">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            {/* PIE CHART - NOW FIRST */}
-            <div className="bg-zinc-900 p-5 md:p-6 rounded-[2rem] shadow-xl flex flex-col h-[280px] md:h-[320px]">
-              <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Service Mix</h4>
-              <div className="flex-grow">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={PIE_DATA} innerRadius="60%" outerRadius="85%" paddingAngle={5} dataKey="value" stroke="none">
-                      {PIE_DATA.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-3">
-                {PIE_DATA.slice(0, 3).map((item) => (
-                  <div key={item.name} className="flex items-center gap-1">
-                    <div className="size-1.5 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-[7px] text-zinc-400 font-bold uppercase">{item.name}</span>
-                  </div>
+      {/* ROW 3: PIE CHART SECTION */}
+      <div className="w-full">
+        <div className="bg-zinc-900 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl p-5 md:p-8 lg:p-10 flex flex-col gap-6">
+          
+          <div className="w-full flex justify-between items-center">
+            <h4 className="text-[10px] font-black text-[#FF8C00] uppercase tracking-[0.2em]">Service Distribution</h4>
+            <div className="flex items-center gap-2">
+               <div className="size-2 rounded-full bg-green-500 animate-pulse" />
+               <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Live</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col xl:flex-row items-center justify-between w-full gap-8">
+            <div className="w-full xl:w-1/2 h-[280px] sm:h-[320px] lg:h-[380px] relative">
+              {/* Logo with Framer Motion for entrance sync */}
+              <motion.div 
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.5, type: "spring", stiffness: 260, damping: 20 }}
+                className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+              >
+                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-zinc-800/50 rounded-full p-2 flex items-center justify-center backdrop-blur-sm border border-white/10">
+                  <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
+                </div>
+              </motion.div>
+              
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <defs>
+                    <style>{`
+                      .recharts-sector { 
+                        outline: none !important; 
+                        -webkit-tap-highlight-color: transparent;
+                        cursor: pointer;
+                        transition: filter 200ms ease-in-out;
+                      }
+                      .recharts-sector:active, .recharts-sector:hover {
+                        filter: brightness(1.2);
+                      }
+                      text.recharts-text { fill: white !important; }
+                    `}</style>
+                  </defs>
+                  <Pie 
+                    data={PIE_DATA} 
+                    innerRadius="72%" 
+                    outerRadius="100%" 
+                    paddingAngle={4} 
+                    dataKey="value" 
+                    stroke="none"
+                    onMouseEnter={(_, index) => setActiveIndex(index)}
+                    onMouseLeave={() => setActiveIndex(null)}
+                    onClick={(_, index) => setActiveIndex(index)}
+                    
+                    /* LOAD ANIMATION SETTINGS */
+                    isAnimationActive={true}
+                    animationBegin={200}
+                    animationDuration={1200}
+                    animationEasing="ease-out"
+                  >
+                    {PIE_DATA.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.color} 
+                        cornerRadius={8}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    cursor={false}
+                    contentStyle={{ 
+                        backgroundColor: '#18181b', 
+                        border: '1px solid #3f3f46', 
+                        borderRadius: '12px', 
+                        color: '#fff',
+                    }} 
+                    itemStyle={{ fontSize: '12px', textTransform: 'uppercase', color: '#fff' }} 
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="w-full xl:w-1/2 flex flex-col gap-4">
+              {/* Animated List Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 gap-2 sm:gap-3">
+                {PIE_DATA.map((item, index) => (
+                  <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 * index }}
+                    key={item.name} 
+                    className={`flex flex-col p-3 rounded-xl border transition-all duration-200 ${
+                        activeIndex === index 
+                        ? 'bg-white/20 border-white/30 scale-[1.02] shadow-lg shadow-black/20' 
+                        : 'bg-white/5 border-white/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <div className="size-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                      <span className="text-[8px] md:text-[10px] text-zinc-400 font-bold uppercase truncate">{item.name}</span>
+                    </div>
+                    <span className="text-white font-black text-sm lg:text-base">{item.value}</span>
+                  </motion.div>
                 ))}
               </div>
-            </div>
 
-            {/* REVENUE GRAPH - NOW SECOND */}
-            <div className="bg-white p-5 md:p-6 rounded-[2rem] border border-zinc-100 shadow-sm flex flex-col h-[280px] md:h-[320px]">
-              <div className="flex justify-between items-center mb-4">
-                <h4 className="text-[10px] font-black text-zinc-900 uppercase tracking-widest">Revenue Flow</h4>
-                <RiLineChartLine className="text-[#8B0000]" />
-              </div>
-              <div className="flex-grow w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={REVENUE_DATA} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8B0000" stopOpacity={0.1}/>
-                        <stop offset="95%" stopColor="#8B0000" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="month" hide />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', fontSize: '10px' }} />
-                    <Area type="monotone" dataKey="amount" stroke="#8B0000" strokeWidth={3} fill="url(#colorRev)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+              {/* Leader Banner with slight delay */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.8 }}
+                className="mt-2 p-4 rounded-2xl bg-gradient-to-r from-[#FF8C00]/20 to-transparent border-l-4 border-[#FF8C00] flex items-center justify-between"
+              >
+                <div>
+                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Current Leader</p>
+                  <h5 className="text-white text-lg lg:text-xl font-black">{TOP_SERVICE.name}</h5>
+                </div>
+                <div className="text-right">
+                  <p className="text-[#FF8C00] text-xl lg:text-2xl font-black">{TOP_SERVICE.value}</p>
+                  <p className="text-[8px] font-bold text-zinc-500 uppercase">Total Events</p>
+                </div>
+              </motion.div>
             </div>
-
           </div>
         </div>
-      </div>
-
-      {/* 4. DESKTOP ONLY: MONEY FOOTER AT BOTTOM */}
-      <div className="hidden md:grid grid-cols-2 gap-4">
-        <MoneyCard 
-          label="Balance" 
-          value="$12,400" 
-          icon={<RiMoneyDollarCircleLine size={28} />} 
-          isDark={false} 
-        />
-        <MoneyCard 
-          label="Annual" 
-          value="$142,850" 
-          icon={<RiLineChartLine size={28} />} 
-          isDark={true} 
-        />
       </div>
     </motion.div>
   );
 };
 
-/* Reusable Money Card Component */
-const MoneyCard = ({ label, value, icon, isDark }) => (
-  <div className={`flex flex-1 items-center justify-between p-4 md:p-5 rounded-xl md:rounded-[2rem] shadow-sm min-w-[150px] md:min-w-0 ${
-    isDark 
-    ? "bg-gradient-to-br from-[#8B0000] to-[#FF8C00] text-white shadow-lg" 
-    : "bg-white border border-zinc-100"
-  }`}>
-    <div>
-      <p className={`text-[7px] md:text-[9px] font-black uppercase tracking-widest ${isDark ? "text-white/60" : "text-zinc-400"}`}>
-        {label}
-      </p>
-      <h3 className="text-sm md:text-2xl font-black">{value}</h3>
-    </div>
-    <div className={isDark ? "text-white" : "text-[#8B0000]"}>
+/* --- SUBCOMPONENTS (StatCard and MoneyCard remain the same) --- */
+const MoneyCard = ({ label, value, icon, type }) => {
+  const isGrowth = type === "growth";
+  return (
+    <motion.div 
+      whileHover={{ scale: 1.02 }}
+      className={`flex items-center justify-between p-4 sm:p-6 lg:p-8 rounded-2xl lg:rounded-[2.5rem] shadow-xl border border-white/10 ${
+      isGrowth ? "bg-gradient-to-br from-[#FF8C00] to-[#cc7000] text-white" : "bg-gradient-to-br from-[#8B0000] to-[#660000] text-white" 
+    }`}>
+      <div className="min-w-0 pr-2">
+        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-1 opacity-80">{label}</p>
+        <h3 className="text-lg sm:text-2xl lg:text-4xl font-black truncate tracking-tight">{value}</h3>
+      </div>
+      <div className="bg-white/20 p-2 sm:p-3 lg:p-4 rounded-xl backdrop-blur-md shrink-0">
+        {React.cloneElement(icon, { size: 24 })}
+      </div>
+    </motion.div>
+  );
+};
+
+const StatCard = ({ icon, label, value, color }) => (
+  <motion.div 
+    whileHover={{ y: -5 }}
+    className="bg-white p-3 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] border border-zinc-100 shadow-sm flex flex-col items-center text-center sm:flex-row sm:text-left sm:gap-3 lg:gap-4 w-full"
+  >
+    <div className={`${color} text-lg sm:text-xl lg:text-2xl bg-zinc-50 p-2 sm:p-3 lg:p-4 rounded-xl lg:rounded-2xl shrink-0 mb-1 sm:mb-0`}>
       {icon}
     </div>
-  </div>
-);
-
-/* Mobile-Tight StatCard */
-const StatCard = ({ icon, label, value, color }) => (
-  <div className="bg-white p-3 md:p-4 rounded-xl md:rounded-2xl border border-zinc-100 shadow-sm flex flex-1 lg:flex-none items-center gap-3 lg:flex-col lg:items-start lg:gap-1 min-w-[110px] lg:min-w-0">
-    <div className={`${color} text-base md:text-lg bg-zinc-50 p-2 rounded-lg`}>{icon}</div>
-    <div>
-      <p className="text-[7px] md:text-[8px] font-black text-zinc-400 uppercase tracking-widest leading-none">{label}</p>
-      <h3 className="text-sm md:text-lg font-black text-zinc-900 leading-tight">{value}</h3>
+    <div className="min-w-0">
+      <p className="text-[6px] sm:text-[8px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-tighter sm:tracking-widest leading-none mb-0.5 sm:mb-1 truncate">
+        {label}
+      </p>
+      <h3 className="text-xs sm:text-lg lg:text-2xl font-black text-zinc-900 leading-tight truncate">
+        {value}
+      </h3>
     </div>
-  </div>
+  </motion.div>
 );
 
 export default Dashboard;

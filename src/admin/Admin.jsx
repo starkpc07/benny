@@ -100,19 +100,12 @@ const Admin = ({ user, handleLogout }) => {
           </aside>
 
           {/* RIGHT CONTENT AREA */}
-          <div className="flex-1 min-w-0 w-full space-y-4 md:space-y-8 md:pt-5">
+          <div className="flex-1 min-w-0 w-full space-y-2 md:pt-5">
             <div className="flex flex-row items-center justify-between border-b border-zinc-100 pb-3 md:pb-6 gap-2">
               {/* Increased font sizes: md:text-5xl (Tablet) and lg:text-7xl (Desktop) */}
-              <h1 className="text-2xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-zinc-900 leading-none">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-black uppercase tracking-tighter text-zinc-900 leading-none">
                 {activeTab}
               </h1>
-              
-              <div className="flex items-center gap-1.5 bg-zinc-100 px-3 py-1.5 rounded-full w-fit">
-                <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                  Live
-                </p>
-              </div>
             </div>
 
             <AnimatePresence mode="wait">
