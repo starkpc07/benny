@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { db } from "../firebase"; // Ensure path is correct
+import { collection, query, onSnapshot } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { 
   ResponsiveContainer, 
@@ -17,48 +19,93 @@ import {
 
 import logoImg from "../assets/logo.webp";
 
-const PIE_DATA = [
-  { name: "Wedding", value: 400, color: "#8B0000" },
-  { name: "Catering", value: 300, color: "#FF8C00" },
-  { name: "Corporate", value: 200, color: "#4338ca" },
-  { name: "Birthday", value: 250, color: "#dc2626" },
-  { name: "Stage", value: 150, color: "#4b5563" },
-  { name: "Decor", value: 200, color: "#f97316" },
-];
-
-const TOP_SERVICE = PIE_DATA.reduce((prev, current) => 
-  (prev.value > current.value) ? prev : current
-);
-
 const Dashboard = () => {
   const [activeIndex, setActiveIndex] = useState(null);
+  // --- NEW STATE FOR FIREBASE DATA ---
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // --- FIREBASE REAL-TIME LISTENER ---
+  useEffect(() => {
+    const q = query(collection(db, "bookings"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setBookings(data);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // --- DYNAMIC CALCULATIONS ---
+  const formatCur = (num) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(num || 0);
+  };
+
+  // 1. Stats Counters
+  const activeCount = bookings.filter(b => b.status === "Confirmed").length;
+  const pendingCount = bookings.filter(b => b.status === "Pending").length;
+  const upcomingCount = bookings.filter(b => b.status !== "Completed").length;
+
+  // 2. Financials (Matches Events logic)
+  const totalBalance = bookings.reduce((acc, curr) => {
+    const total = Number(curr.amount) || 0;
+    const paid = curr.paymentStatus === "Fully Paid" ? total : (Number(curr.advanceAmount) || 0);
+    return acc + (total - paid);
+  }, 0);
+
+  const totalGrowth = bookings.reduce((acc, curr) => {
+    if (curr.paymentStatus === "Fully Paid") return acc + (Number(curr.amount) || 0);
+    return acc + (Number(curr.advanceAmount) || 0);
+  }, 0);
+
+  // 3. Dynamic Pie Data based on Categories
+  const categoryCounts = bookings.reduce((acc, curr) => {
+    const cat = curr.eventCategory || "Other";
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {});
+
+  const COLORS = ["#8B0000", "#FF8C00", "#4338ca", "#dc2626", "#4b5563", "#f97316"];
+  
+  const PIE_DATA = Object.keys(categoryCounts).map((name, index) => ({
+    name,
+    value: categoryCounts[name],
+    color: COLORS[index % COLORS.length]
+  }));
+
+  const TOP_SERVICE = PIE_DATA.length > 0 
+    ? PIE_DATA.reduce((prev, current) => (prev.value > current.value) ? prev : current)
+    : { name: "None", value: 0 };
+
+  if (loading) return <div className="p-20 text-center text-sm font-black uppercase text-zinc-400 animate-pulse tracking-widest">Loading Analytics...</div>;
 
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }} 
       animate={{ opacity: 1, y: 0 }} 
       transition={{ duration: 0.5 }}
-      /* Reduced gap-4 to sm:gap-2 lg:gap-1 to pull sections closer on Desktop/Tablet */
       className="grid grid-cols-1 gap-4 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-5xl mx-auto bg-zinc-50/50 px-4 pt-4 pb-10"
     >
       
-      {/* --- SECTION 1: STATS & MONEY (Mobile: First | Desktop: Second) --- */}
+      {/* --- SECTION 1: STATS & MONEY --- */}
       <div className="flex flex-col space-y-5 lg:order-2 lg:mt-2">
-        {/* ROW 1: STATS CARDS */}
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
-          <StatCard icon={<RiPieChartLine />} label="Active" value="12" color="text-[#8B0000]" />
-          <StatCard icon={<RiStackLine />} label="Pending" value="05" color="text-[#FF8C00]" />
-          <StatCard icon={<RiCalendarCheckLine />} label="Upcoming" value="24" color="text-zinc-900" />
+          <StatCard icon={<RiPieChartLine />} label="Confirmed" value={activeCount.toString().padStart(2, '0')} color="text-[#8B0000]" />
+          <StatCard icon={<RiStackLine />} label="Pending" value={pendingCount.toString().padStart(2, '0')} color="text-[#FF8C00]" />
+          <StatCard icon={<RiCalendarCheckLine />} label="All Active" value={upcomingCount.toString().padStart(2, '0')} color="text-zinc-900" />
         </div>
 
-        {/* ROW 2: MONEY CARDS */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          <MoneyCard label="Balance" value="₹2,000" icon={<RiMoneyDollarCircleLine />} type="balance" />
-          <MoneyCard label="Growth" value="₹14,000" icon={<RiArrowRightUpLine />} type="growth" />
+          <MoneyCard label="Balance Due" value={formatCur(totalBalance)} icon={<RiMoneyDollarCircleLine />} type="balance" />
+          <MoneyCard label="Paid Revenue" value={formatCur(totalGrowth)} icon={<RiArrowRightUpLine />} type="growth" />
         </div>
       </div>
 
-      {/* --- SECTION 2: PIE CHART SECTION (Mobile: Second | Desktop: First) --- */}
+      {/* --- SECTION 2: PIE CHART SECTION --- */}
       <div className="w-full lg:order-1">
         <div className="bg-zinc-900 rounded-4xl lg:rounded-[2.5rem] shadow-2xl p-5 md:p-6 lg:p-7 flex flex-col gap-5">
           
@@ -66,7 +113,7 @@ const Dashboard = () => {
             <h4 className="text-[10px] font-black text-[#FF8C00] uppercase tracking-[0.2em]">Service Distribution</h4>
             <div className="flex items-center gap-2">
                <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-               <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Live</span>
+               <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Live Sync</span>
             </div>
           </div>
 
@@ -76,7 +123,6 @@ const Dashboard = () => {
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.5, type: "spring", stiffness: 260, damping: 20 }}
-                /* Reset border when clicking logo area */
                 onClick={() => setActiveIndex(null)}
                 className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
               >
@@ -86,10 +132,7 @@ const Dashboard = () => {
               </motion.div>
               
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart 
-                  /* Reset border when clicking empty space in the chart container */
-                  onClick={() => setActiveIndex(null)}
-                >
+                <PieChart onClick={() => setActiveIndex(null)}>
                   <defs>
                     <style>{`
                       .recharts-sector { 
@@ -111,32 +154,19 @@ const Dashboard = () => {
                     stroke="none"
                     onMouseEnter={(_, index) => setActiveIndex(index)}
                     onMouseLeave={() => setActiveIndex(null)}
-                    /* e.stopPropagation prevents the Chart's onClick from firing when a slice is clicked */
                     onClick={(e, index) => {
                       e.stopPropagation();
                       setActiveIndex(index);
                     }}
                     isAnimationActive={true}
-                    animationBegin={200}
-                    animationDuration={1200}
-                    animationEasing="ease-out"
                   >
                     {PIE_DATA.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={entry.color} 
-                        cornerRadius={6}
-                      />
+                      <Cell key={`cell-${index}`} fill={entry.color} cornerRadius={6} />
                     ))}
                   </Pie>
                   <Tooltip 
                     cursor={false}
-                    contentStyle={{ 
-                        backgroundColor: '#18181b', 
-                        border: '1px solid #3f3f46', 
-                        borderRadius: '12px', 
-                        color: '#fff',
-                    }} 
+                    contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: '12px', color: '#fff' }} 
                     itemStyle={{ fontSize: '10px', textTransform: 'uppercase', color: '#fff' }} 
                   />
                 </PieChart>
@@ -147,9 +177,6 @@ const Dashboard = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 gap-2">
                 {PIE_DATA.map((item, index) => (
                   <motion.div 
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 * index }}
                     key={item.name} 
                     className={`flex flex-col p-2.5 rounded-xl border transition-all duration-200 ${
                         activeIndex === index 
@@ -167,18 +194,15 @@ const Dashboard = () => {
               </div>
 
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.8 }}
                 className="mt-1 p-3 rounded-2xl bg-linear-to-r from-[#FF8C00]/20 to-transparent border-l-4 border-[#FF8C00] flex items-center justify-between"
               >
                 <div>
-                  <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Current Leader</p>
+                  <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Top Category</p>
                   <h5 className="text-white text-base lg:text-lg font-black">{TOP_SERVICE.name}</h5>
                 </div>
                 <div className="text-right">
                   <p className="text-[#FF8C00] text-lg lg:text-xl font-black">{TOP_SERVICE.value}</p>
-                  <p className="text-[7px] font-bold text-zinc-500 uppercase">Total Events</p>
+                  <p className="text-[7px] font-bold text-zinc-500 uppercase">Bookings</p>
                 </div>
               </motion.div>
             </div>
