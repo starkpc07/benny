@@ -10,7 +10,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Stalls from './pages/Stalls';
 import Gallery from './components/Gallery';
-import Admin from './pages/Admin';
+import Admin from './admin/Admin';
 import Book from './pages/Book';
 import Background from './components/Background'; 
 
