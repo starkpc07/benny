@@ -15,7 +15,7 @@ const Home = () => {
 
   const handleBookClick = () => {
     window.scrollTo({ top: 0, behavior: "instant" });
-    navigate("/book");
+    navigate("/login");
   };
 
   return (

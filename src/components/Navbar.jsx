@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   RiUser3Fill,
   RiHome4Line,
@@ -8,30 +8,19 @@ import {
 } from "react-icons/ri";
 import { Rotate as Hamburger } from "hamburger-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLenis } from "lenis/react";
 import logoImg from "../assets/logo.webp";
 
-const Navbar = () => {
+const Navbar = ({ user }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const lenis = useLenis();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
-
   const handleNavClick = (e, path) => {
     const isAnchor = path.startsWith("#");
     setIsMenuOpen(false);
-
     const scrollOffset = window.innerWidth < 768 ? -10 : -20;
 
     if (isAnchor) {
@@ -61,6 +50,12 @@ const Navbar = () => {
     { name: "Contact", icon: <RiContactsLine />, path: "#contact" },
   ];
 
+  // Logic to determine the link based on user role
+  const getPanelLink = () => {
+    if (!user) return "/login";
+    return user.role === "admin" ? "/admin" : "/user-panel";
+  };
+
   return (
     <>
       <AnimatePresence>
@@ -77,7 +72,7 @@ const Navbar = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="fixed inset-x-4 top-24 bottom-6 z-160 rounded-[2.5rem] bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#B22222] shadow-2xl md:hidden overflow-hidden will-change-transform translate-z-0"
+              className="fixed inset-x-4 top-24 bottom-6 z-160 rounded-[2.5rem] bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#B22222] shadow-2xl md:hidden overflow-hidden"
             >
               <div className="flex h-full flex-col justify-between p-6">
                 <div className="text-center pt-2">
@@ -99,9 +94,13 @@ const Navbar = () => {
                   ))}
                 </ul>
                 <div className="pb-2">
-                  <Link to="/login" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-center gap-3 rounded-2xl bg-white p-4 text-base font-black uppercase tracking-widest text-[#8B0000] shadow-xl active:scale-95">
-                    {user?.photoURL ? <img src={user.photoURL} className="size-6 rounded-full object-cover" alt="" /> : <RiUser3Fill />}
-                    {user ? "Account" : "Login"}
+                  <Link 
+                    to={getPanelLink()} 
+                    onClick={() => setIsMenuOpen(false)} 
+                    className="flex items-center justify-center gap-3 rounded-2xl bg-white p-4 text-base font-black uppercase tracking-widest text-[#8B0000] shadow-xl active:scale-95"
+                  >
+                    <RiUser3Fill size={20} />
+                    {user ? (user.role === "admin" ? "Admin Panel" : "Account") : "Login"}
                   </Link>
                 </div>
               </div>
@@ -111,12 +110,13 @@ const Navbar = () => {
       </AnimatePresence>
 
       <header className="fixed inset-x-0 top-4 z-200 md:top-8">
-        {/* Updated width and responsiveness while keeping request padding */}
-        <div className="mx-4 max-w-400 lg:px-10 md:px-5 md:mx-auto transition-all duration-300">
-          <nav className="relative flex h-14 items-center justify-between rounded-full bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] px-4 shadow-2xl md:h-20 md:px-8 border border-white/20 will-change-transform transform-gpu">
+        <div className="mx-4 max-w-400 lg:px-10 md:px-5 md:mx-auto">
+          <nav className="relative flex h-14 items-center justify-between rounded-full bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] px-4 shadow-2xl md:h-20 md:px-8 border border-white/20">
             <button onClick={(e) => handleNavClick(e, "/")} className="group relative z-210 flex items-center gap-3 cursor-pointer">
               <img src={logoImg} alt="Logo" className="h-12 w-12 md:h-16 md:w-16 object-contain" />
-              <span className="text-lg font-black text-white md:text-xl tracking-tighter uppercase">Benny Events</span>
+              <span className="text-lg font-black text-white md:text-xl tracking-tighter uppercase leading-none">
+                Benny <br className="md:hidden"/> Events
+              </span>
             </button>
 
             <div className="hidden md:flex items-center gap-10">
@@ -131,9 +131,12 @@ const Navbar = () => {
               ))}
             </div>
 
-            <div className="relative z-210 flex items-center gap-2">
-              <Link to="/login" className="hidden md:grid size-12 place-items-center rounded-full bg-white/20 text-white border border-white/20 overflow-hidden hover:bg-white hover:text-red-700 transition-all">
-                {user?.photoURL ? <img src={user.photoURL} className="size-full object-cover" alt="Profile" /> : <RiUser3Fill />}
+            <div className="relative z-210 flex items-center gap-3">
+              <Link 
+                to={getPanelLink()} 
+                className="hidden md:grid size-12 place-items-center rounded-full bg-white/20 text-white border border-white/20 hover:bg-white hover:text-[#8B0000] transition-all"
+              >
+                <RiUser3Fill size={22} />
               </Link>
               <div className="md:hidden">
                 <Hamburger toggled={isMenuOpen} toggle={setIsMenuOpen} color="#FFFFFF" size={20} rounded />

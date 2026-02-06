@@ -14,22 +14,15 @@ const FloatingMenu = ({
   setActiveTab, 
   handleLogout 
 }) => {
-  // Optimization: Using a spring for "butter-smooth" feel
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { 
-        staggerChildren: 0.04, 
-        delayChildren: 0.05 
-      }
+      transition: { staggerChildren: 0.04, delayChildren: 0.05 }
     },
     exit: { 
       opacity: 0, 
-      transition: { 
-        staggerChildren: 0.03, 
-        staggerDirection: -1 
-      } 
+      transition: { staggerChildren: 0.03, staggerDirection: -1 } 
     }
   };
 
@@ -58,8 +51,10 @@ const FloatingMenu = ({
               <motion.button
                 variants={itemVariants}
                 key={item.id}
-                onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }}
-                // Removed ring and ring-offset for maximum performance
+                onClick={() => { 
+                  setActiveTab(item.id); 
+                  setIsMobileMenuOpen(false); 
+                }}
                 className={`flex items-center justify-end gap-4 px-6 py-4 rounded-full shadow-xl min-w-[180px] transition-colors duration-200 active:scale-95 ${
                   activeTab === item.id 
                     ? "bg-zinc-900 text-white" 
@@ -71,9 +66,13 @@ const FloatingMenu = ({
               </motion.button>
             ))}
             
+            {/* LOGOUT BUTTON FIX */}
             <motion.button 
               variants={itemVariants}
-              onClick={handleLogout}
+              onClick={() => {
+                setIsMobileMenuOpen(false); // 1. Close the menu first for smooth exit
+                handleLogout();             // 2. Trigger parent logout logic
+              }}
               className="flex items-center justify-end gap-4 px-6 py-4 rounded-full shadow-xl min-w-[180px] bg-white text-red-600 font-black active:scale-95"
             >
               <span className="text-[11px] font-black uppercase tracking-[0.2em]">Logout</span>
@@ -83,14 +82,13 @@ const FloatingMenu = ({
         )}
       </AnimatePresence>
       
-      {/* Trigger Button with Spring Animation */}
       <motion.button 
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
         initial={false}
         animate={{ 
           rotate: isMobileMenuOpen ? 180 : 0,
-          backgroundColor: isMobileMenuOpen ? "#18181b" : "#8B0000" // Instant sync with bg-zinc-900 logic
+          backgroundColor: isMobileMenuOpen ? "#18181b" : "#8B0000"
         }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
         className="size-16 rounded-full flex items-center justify-center text-white shadow-2xl relative overflow-hidden"
