@@ -44,14 +44,14 @@ const Admin = ({ user, handleLogout }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-[3px] z-[400] md:hidden"
+            className="fixed inset-0 bg-black/60 z-[400] md:hidden"
           />
         )}
       </AnimatePresence>
 
-      <main className="flex-grow pt-24 md:pt-36 pb-10 px-4 max-w-[1400px] md:px-6 md:mx-auto w-full transition-all duration-300">
+      <main className="flex-grow pt-24 md:pt-36 pb-10 px-4 max-w-[1440px] md:px-6 md:mx-auto w-full transition-all duration-300">
         
-        {/* MOBILE BRAND HEADER (Matches Desktop Sidebar Style) */}
+        {/* MOBILE BRAND HEADER */}
         <div className="flex md:hidden bg-white p-5 rounded-[2rem] border border-zinc-100 shadow-sm items-center gap-4 mb-8">
           <div className="size-11 rounded-xl bg-gradient-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] flex items-center justify-center text-white shadow-lg shrink-0">
             <RiFlashlightFill size={22} />
@@ -66,17 +66,17 @@ const Admin = ({ user, handleLogout }) => {
 
         <div className="flex flex-col md:flex-row gap-6 lg:gap-10 items-start">
           
-          {/* LEFT SIDEBAR (Desktop Only) */}
-          <aside className="hidden md:block w-[300px] lg:w-[350px] shrink-0 space-y-6 sticky top-36">
+          {/* LEFT SIDEBAR - Reduced width to 260px for tablet, 350px for large desktop */}
+          <aside className="hidden md:block md:w-[260px] lg:w-[350px] shrink-0 space-y-6 sticky top-36">
             <div className="bg-white p-6 rounded-[2.5rem] border border-zinc-100 shadow-sm flex items-center gap-4">
               <div className="size-12 rounded-xl bg-gradient-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] flex items-center justify-center text-white shadow-lg shrink-0">
                 <RiFlashlightFill size={26} />
               </div>
               <div className="min-w-0">
-                <h2 className="text-sm lg:text-base font-black uppercase tracking-tighter text-zinc-900 leading-none truncate">
+                <h2 className="text-base lg:text-lg font-black uppercase tracking-tighter text-zinc-900 leading-none truncate">
                   BENNY<span className="text-[#8B0000]">EVENTS</span>
                 </h2>
-                <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest truncate mt-1">Master Control Panel</p>
+                <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest truncate mt-1">Master Control Panel</p>
               </div>
             </div>
 
@@ -86,14 +86,14 @@ const Admin = ({ user, handleLogout }) => {
                 <button
                   key={Item.id}
                   onClick={() => setActiveTab(Item.id)}
-                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-200 ${
+                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] transition-all duration-200 ${
                     activeTab === Item.id ? "bg-zinc-900 text-white shadow-xl shadow-zinc-200" : "text-zinc-400 hover:bg-zinc-50"
                   }`}
                 >
                   <Item.icon className="text-xl" /> {Item.id}
                 </button>
               ))}
-              <button onClick={handleLogout} className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black text-red-600 uppercase mt-4 border-t border-zinc-50 pt-6 hover:bg-red-50 transition-colors">
+              <button onClick={handleLogout} className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[12px] font-black text-red-600 uppercase mt-4 border-t border-zinc-50 pt-6 hover:bg-red-50 transition-colors">
                 <RiLogoutBoxRLine className="text-xl" /> Sign Out
               </button>
             </nav>
@@ -102,13 +102,14 @@ const Admin = ({ user, handleLogout }) => {
           {/* RIGHT CONTENT AREA */}
           <div className="flex-1 min-w-0 w-full space-y-4 md:space-y-8 md:pt-5">
             <div className="flex flex-row items-center justify-between border-b border-zinc-100 pb-3 md:pb-6 gap-2">
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-zinc-900 leading-none">
+              {/* Increased font sizes: md:text-5xl (Tablet) and lg:text-7xl (Desktop) */}
+              <h1 className="text-2xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-zinc-900 leading-none">
                 {activeTab}
               </h1>
               
-              <div className="flex items-center gap-1.5 bg-zinc-100 px-2.5 py-1 rounded-full w-fit">
-                <div className="size-1 rounded-full bg-green-500 animate-pulse" />
-                <p className="text-[8px] md:text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+              <div className="flex items-center gap-1.5 bg-zinc-100 px-3 py-1.5 rounded-full w-fit">
+                <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
                   Live
                 </p>
               </div>
