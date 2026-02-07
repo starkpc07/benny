@@ -32,7 +32,6 @@ const UserPanel = ({ user }) => {
           const data = userDoc.data();
           setNewPhone(data.phone || "");
           setNewName(data.fullName || user.displayName || "");
-          // Force open if profile is incomplete
           if (!data.phone || !data.fullName) setIsForceOpen(true);
         } else {
           setIsForceOpen(true);
@@ -64,10 +63,8 @@ const UserPanel = ({ user }) => {
 
     setIsUpdating(true);
     try {
-      // 1. Update Firebase Auth Profile
       await updateProfile(auth.currentUser, { displayName: newName });
       
-      // 2. Update User Document in Firestore
       const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
         fullName: newName,
@@ -77,7 +74,6 @@ const UserPanel = ({ user }) => {
         updatedAt: new Date()
       }, { merge: true });
 
-      // 3. SYNC TO BOOKINGS: Update all bookings so Admin (Events.jsx) sees latest info
       const batch = writeBatch(db);
       const q = query(collection(db, "bookings"), where("userId", "==", user.uid));
       const querySnapshot = await getDocs(q);
@@ -86,7 +82,7 @@ const UserPanel = ({ user }) => {
         batch.update(doc(db, "bookings", document.id), {
           clientName: newName,
           clientPhone: newPhone,
-          clientEmail: user.email // Ensuring email is synced for Events.jsx
+          clientEmail: user.email 
         });
       });
       await batch.commit();
@@ -149,7 +145,6 @@ const UserPanel = ({ user }) => {
           <button onClick={handleLogout} className="flex items-center gap-3 px-8 py-4 bg-zinc-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-colors"><RiLogoutBoxRLine size={18} /> Log Out</button>
         </div>
 
-        {/* DETAILED TIMELINE */}
         <div className="max-w-4xl mx-auto space-y-12">
           <div className="flex flex-col items-center justify-center gap-6 mb-12">
             <h3 className="text-2xl font-black uppercase tracking-tighter text-zinc-900 flex items-center gap-3">
@@ -185,7 +180,12 @@ const UserPanel = ({ user }) => {
                       <h4 className="text-2xl font-black text-zinc-900 uppercase tracking-tighter">{booking.eventDate}</h4>
                       <div className="flex flex-wrap gap-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
                         <span className="flex items-center gap-1"><RiTimeLine className="text-amber-500"/> {booking.createdAt?.toDate().toLocaleDateString()}</span>
-                        <span className="flex items-center gap-1"><RiMapPin2Line className="text-amber-500"/> Venue Confirmed</span>
+                        
+                        {/* FIX: Dynamic Location display */}
+                        <span className="flex items-center gap-1">
+                          <RiMapPin2Line className="text-amber-500"/> 
+                          {booking.eventLocation || "Venue TBD"}
+                        </span>
                       </div>
                     </div>
                     <div className="bg-zinc-50 rounded-2xl p-4 min-w-45 flex flex-col justify-center border border-zinc-100">

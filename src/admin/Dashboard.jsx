@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebase"; // Ensure path is correct
-import { collection, query, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { 
   ResponsiveContainer, 
@@ -14,20 +14,30 @@ import {
   RiStackLine, 
   RiCalendarCheckLine, 
   RiMoneyDollarCircleLine, 
-  RiArrowRightUpLine
+  RiArrowRightUpLine,
+  RiFilter3Line,
+  RiCalendarLine
 } from "react-icons/ri";
 
 import logoImg from "../assets/logo.png";
 
 const Dashboard = () => {
   const [activeIndex, setActiveIndex] = useState(null);
-  // --- NEW STATE FOR FIREBASE DATA ---
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // --- GET CURRENT DATE FOR DEFAULTS ---
+  const today = new Date();
+  const currentMonth = today.getMonth().toString(); // "0" - "11"
+  const currentYear = today.getFullYear().toString();
+
+  // --- FILTER STATES (Defaulting to Current Month/Year) ---
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth); 
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+
   // --- FIREBASE REAL-TIME LISTENER ---
   useEffect(() => {
-    const q = query(collection(db, "bookings"));
+    const q = query(collection(db, "bookings"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setBookings(data);
@@ -35,6 +45,17 @@ const Dashboard = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  // --- FILTER LOGIC ---
+  const filteredBookings = bookings.filter(b => {
+    if (!b.createdAt) return false;
+    const date = b.createdAt.toDate();
+    
+    const monthMatch = selectedMonth === "all" || date.getMonth().toString() === selectedMonth;
+    const yearMatch = date.getFullYear().toString() === selectedYear;
+    
+    return monthMatch && yearMatch;
+  });
 
   // --- DYNAMIC CALCULATIONS ---
   const formatCur = (num) => {
@@ -45,25 +66,22 @@ const Dashboard = () => {
     }).format(num || 0);
   };
 
-  // 1. Stats Counters
-  const activeCount = bookings.filter(b => b.status === "Confirmed").length;
-  const pendingCount = bookings.filter(b => b.status === "Pending").length;
-  const upcomingCount = bookings.filter(b => b.status !== "Completed").length;
+  const activeCount = filteredBookings.filter(b => b.status === "Confirmed").length;
+  const pendingCount = filteredBookings.filter(b => b.status === "Pending").length;
+  const upcomingCount = filteredBookings.filter(b => b.status !== "Completed").length;
 
-  // 2. Financials (Matches Events logic)
-  const totalBalance = bookings.reduce((acc, curr) => {
+  const totalBalance = filteredBookings.reduce((acc, curr) => {
     const total = Number(curr.amount) || 0;
     const paid = curr.paymentStatus === "Fully Paid" ? total : (Number(curr.advanceAmount) || 0);
     return acc + (total - paid);
   }, 0);
 
-  const totalGrowth = bookings.reduce((acc, curr) => {
+  const totalGrowth = filteredBookings.reduce((acc, curr) => {
     if (curr.paymentStatus === "Fully Paid") return acc + (Number(curr.amount) || 0);
     return acc + (Number(curr.advanceAmount) || 0);
   }, 0);
 
-  // 3. Dynamic Pie Data based on Categories
-  const categoryCounts = bookings.reduce((acc, curr) => {
+  const categoryCounts = filteredBookings.reduce((acc, curr) => {
     const cat = curr.eventCategory || "Other";
     acc[cat] = (acc[cat] || 0) + 1;
     return acc;
@@ -81,6 +99,19 @@ const Dashboard = () => {
     ? PIE_DATA.reduce((prev, current) => (prev.value > current.value) ? prev : current)
     : { name: "None", value: 0 };
 
+  const months = [
+    { val: "all", label: "Full Year" },
+    { val: "0", label: "January" }, { val: "1", label: "February" },
+    { val: "2", label: "March" }, { val: "3", label: "April" },
+    { val: "4", label: "May" }, { val: "5", label: "June" },
+    { val: "6", label: "July" }, { val: "7", label: "August" },
+    { val: "8", label: "September" }, { val: "9", label: "October" },
+    { val: "10", label: "November" }, { val: "11", label: "December" }
+  ];
+
+  // Dynamic Year range based on current year
+  const years = Array.from({ length: 5 }, (_, i) => (parseInt(currentYear) - 1 + i).toString());
+
   if (loading) return <div className="p-20 text-center text-sm font-black uppercase text-zinc-400 animate-pulse tracking-widest">Loading Analytics...</div>;
 
   return (
@@ -88,20 +119,58 @@ const Dashboard = () => {
       initial={{ opacity: 0, y: 20 }} 
       animate={{ opacity: 1, y: 0 }} 
       transition={{ duration: 0.5 }}
-      className="grid grid-cols-1 gap-4 sm:gap-2 md:gap-4 lg:gap-6 w-full max-w-5xl mx-auto bg-zinc-50/50 px-4 pt-4 pb-10"
+      className="flex flex-col gap-4 sm:gap-6 w-full max-w-5xl mx-auto bg-zinc-50/50 px-4 pt-4 pb-10"
     >
+      {/* --- FILTER BAR --- */}
+      <div className="bg-white p-4 rounded-3xl border border-zinc-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-zinc-900 p-2 rounded-xl text-[#FF8C00]">
+            <RiFilter3Line size={20} />
+          </div>
+          <div>
+            <h2 className="text-xs font-black uppercase tracking-tighter text-zinc-900">Analytics Filter</h2>
+            <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Currently showing: {months.find(m => m.val === selectedMonth)?.label} {selectedYear}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          {/* Month Select */}
+          <div className="relative flex-1 md:w-40">
+            <RiCalendarLine className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" size={14} />
+            <select 
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="w-full bg-zinc-50 border border-zinc-100 rounded-xl py-2.5 pl-9 pr-4 text-[10px] font-black uppercase outline-none focus:border-[#FF8C00] appearance-none cursor-pointer"
+            >
+              {months.map(m => <option key={m.val} value={m.val}>{m.label}</option>)}
+            </select>
+          </div>
+
+          {/* Year Select */}
+          <div className="relative flex-1 md:w-32">
+            <RiStackLine className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" size={14} />
+            <select 
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="w-full bg-zinc-50 border border-zinc-100 rounded-xl py-2.5 pl-9 pr-4 text-[10px] font-black uppercase outline-none focus:border-[#FF8C00] appearance-none cursor-pointer"
+            >
+              {years.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
       
       {/* --- SECTION 1: STATS & MONEY --- */}
-      <div className="flex flex-col space-y-5 lg:order-2 lg:mt-2">
+      <div className="flex flex-col space-y-5 lg:order-2">
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
           <StatCard icon={<RiPieChartLine />} label="Confirmed" value={activeCount.toString().padStart(2, '0')} color="text-[#8B0000]" />
           <StatCard icon={<RiStackLine />} label="Pending" value={pendingCount.toString().padStart(2, '0')} color="text-[#FF8C00]" />
           <StatCard icon={<RiCalendarCheckLine />} label="All Active" value={upcomingCount.toString().padStart(2, '0')} color="text-zinc-900" />
         </div>
 
-        <div className="grid grid-cols-1  md:grid-cols-2 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           <MoneyCard label="Balance Due" value={formatCur(totalBalance)} icon={<RiMoneyDollarCircleLine />} type="balance" />
-          <MoneyCard label="Paid Revenue" value={formatCur(totalGrowth)} icon={<RiArrowRightUpLine />} type="growth" />
+          <MoneyCard label="Total Revenue" value={formatCur(totalGrowth)} icon={<RiArrowRightUpLine />} type="growth" />
         </div>
       </div>
 
@@ -175,7 +244,7 @@ const Dashboard = () => {
 
             <div className="w-full xl:w-1/2 flex flex-col gap-3">
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 gap-2">
-                {PIE_DATA.map((item, index) => (
+                {PIE_DATA.length > 0 ? PIE_DATA.map((item, index) => (
                   <motion.div 
                     key={item.name} 
                     className={`flex flex-col p-2.5 rounded-xl border transition-all duration-200 ${
@@ -190,21 +259,27 @@ const Dashboard = () => {
                     </div>
                     <span className="text-white font-black text-xs lg:text-sm">{item.value}</span>
                   </motion.div>
-                ))}
+                )) : (
+                  <div className="col-span-full py-10 text-center text-zinc-500 text-[10px] font-black uppercase tracking-widest opacity-50">
+                    No data for this period
+                  </div>
+                )}
               </div>
 
-              <motion.div 
-                className="mt-1 p-3 rounded-2xl bg-linear-to-r from-[#FF8C00]/20 to-transparent border-l-4 border-[#FF8C00] flex items-center justify-between"
-              >
-                <div>
-                  <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Top Category</p>
-                  <h5 className="text-white text-base lg:text-lg font-black">{TOP_SERVICE.name}</h5>
-                </div>
-                <div className="text-right">
-                  <p className="text-[#FF8C00] text-lg lg:text-xl font-black">{TOP_SERVICE.value}</p>
-                  <p className="text-[7px] font-bold text-zinc-500 uppercase">Bookings</p>
-                </div>
-              </motion.div>
+              {PIE_DATA.length > 0 && (
+                <motion.div 
+                  className="mt-1 p-3 rounded-2xl bg-linear-to-r from-[#FF8C00]/20 to-transparent border-l-4 border-[#FF8C00] flex items-center justify-between"
+                >
+                  <div>
+                    <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Top Category</p>
+                    <h5 className="text-white text-base lg:text-lg font-black">{TOP_SERVICE.name}</h5>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[#FF8C00] text-lg lg:text-xl font-black">{TOP_SERVICE.value}</p>
+                    <p className="text-[7px] font-bold text-zinc-500 uppercase">Bookings</p>
+                  </div>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
@@ -213,7 +288,7 @@ const Dashboard = () => {
   );
 };
 
-/* --- SUBCOMPONENTS --- */
+/* Subcomponents remain unchanged... */
 const MoneyCard = ({ label, value, icon, type }) => {
   const isGrowth = type === "growth";
   return (
