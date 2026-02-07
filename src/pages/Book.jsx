@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase"; 
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, doc, getDoc } from "firebase/firestore";
 import { 
   RiArrowLeftLine, RiDoubleQuotesL, RiUserLine, 
   RiCalendarLine, RiLayoutMasonryLine, RiChat3Line, RiSendPlaneLine 
@@ -12,16 +12,27 @@ const Book = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ name: "", date: "", event: "", message: "" });
+  const [userProfile, setUserProfile] = useState(null);
 
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     
-    // Improved auth check: only redirect if we are sure the user is null
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (!user) {
         navigate("/login");
+      } else {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            setUserProfile(data);
+            setFormData(prev => ({ ...prev, name: data.fullName || user.displayName || "" }));
+          }
+        } catch (err) {
+          console.error("Error fetching user profile:", err);
+        }
       }
     });
     return () => unsubscribe();
@@ -41,18 +52,21 @@ const Book = () => {
       const user = auth.currentUser;
       if (!user) throw new Error("Authentication required.");
 
+      // SYNCED DATA STRUCTURE FOR EVENTS.JSX (ADMIN)
       await addDoc(collection(db, "bookings"), {
         userId: user.uid,
-        userEmail: user.email,
-        clientName: formData.name,
+        clientEmail: user.email, 
+        clientName: formData.name, 
+        clientPhone: userProfile?.phone || "", 
         eventDate: formData.date,
-        eventType: formData.event,
-        requirements: formData.message,
+        eventCategory: formData.event, 
+        requirements: formData.message, // THIS IS THE BOX CONTENT SHOWN IN EVENTS.JSX
         status: "Processing",
-        createdAt: serverTimestamp(), // Dashboard depends on this!
+        amount: 0, 
+        advanceAmount: 0, 
+        createdAt: serverTimestamp(),
       });
 
-      // Redirect with 'replace' so they can't go back to the form with the back button
       navigate("/dashboard", { replace: true }); 
 
     } catch (error) {
@@ -92,9 +106,12 @@ const Book = () => {
             </div>
 
             <form className="space-y-3" onSubmit={handleSubmit}>
-              <div className="relative">
-                <RiUserLine className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
-                <input type="text" name="name" required value={formData.name} onChange={handleChange} className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl pl-11 pr-4 py-3.5 text-xs font-bold text-zinc-900 outline-none focus:bg-white focus:border-[#8B0000] transition-all" placeholder="Enter your name" />
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-black tracking-widest text-zinc-400 ml-1">Full Name</label>
+                <div className="relative">
+                  <RiUserLine className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
+                  <input type="text" name="name" required value={formData.name} onChange={handleChange} className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl pl-11 pr-4 py-3.5 text-xs font-bold text-zinc-900 outline-none focus:bg-white focus:border-[#8B0000] transition-all" placeholder="Enter your name" />
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -106,7 +123,7 @@ const Book = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] uppercase font-black tracking-widest text-zinc-400 ml-1">Service</label>
+                <label className="text-[10px] uppercase font-black tracking-widest text-zinc-400 ml-1">Service Type</label>
                 <div className="relative">
                   <RiLayoutMasonryLine className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
                   <select name="event" required value={formData.event} onChange={handleChange} className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl pl-11 pr-4 py-3.5 text-xs font-bold text-zinc-900 outline-none focus:bg-white focus:border-[#8B0000] transition-all appearance-none cursor-pointer">
@@ -128,7 +145,11 @@ const Book = () => {
               </div>
 
               <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-linear-to-r from-[#8B0000] to-[#FF8C00] text-white hover:brightness-110 disabled:opacity-50 rounded-xl font-black uppercase text-[11px] tracking-[0.2em] transition-all active:scale-[0.98] flex justify-center items-center mt-4 shadow-lg">
-                {isSubmitting ? <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <span className="flex items-center gap-2">Book Now <RiSendPlaneLine size={14} /></span>}
+                {isSubmitting ? (
+                  <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span className="flex items-center gap-2">Confirm Booking <RiSendPlaneLine size={14} /></span>
+                )}
               </button>
             </form>
           </div>
