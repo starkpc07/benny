@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { RiCalendarCheckLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import Slider from "../components/Slider";
+import logoImg from "../assets/logo.png"; // Kept the logo import
 
 const Home = () => {
   const navigate = useNavigate();
@@ -25,24 +26,27 @@ const Home = () => {
       <div className="absolute bottom-[-5%] left-[-5%] size-62.5 md:size-150 rounded-full bg-red-50/30 blur-[80px] pointer-events-none" />
 
       {/* --- HERO SECTION WRAPPER --- */}
-      <section className="relative z-10 px-4 md:px-10 max-w-400 w-full mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20">
+      <section className="relative z-10 px-4 md:px-10 max-w-400 w-full mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
         
         {/* LEFT SIDE: SLIDER */}
         <div className="w-full lg:w-1/2 order-1">
           <Slider />
         </div>
 
-        {/* RIGHT SIDE: TEXT CONTENT + CENTERED BUTTON */}
+        {/* RIGHT SIDE: LOGO + TEXT CONTENT + CENTERED BUTTON */}
         <div className="w-full lg:w-1/2 flex flex-col items-center text-center order-2">
-          <motion.h1
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-[12vw] sm:text-[10vw] lg:text-[5.5vw] xl:text-[6.5rem] font-black leading-[0.85] tracking-tighter mb-6"
+          {/* Replaced Benny Events text with Logo */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-2"
           >
-            <span className="text-[#0f172a] block">Benny Events</span>
-            <span className="text-red-700">&</span>
-            <span className="text-[#0f172a]"> Catering</span>
-          </motion.h1>
+            <img 
+              src={logoImg} 
+              alt="Logo" 
+              className="w-64 md:w-80 lg:w-md h-auto object-contain drop-shadow-2xl pointer-events-none select-none" 
+            />
+          </motion.div>
 
           <motion.p
             initial={{ opacity: 0 }}

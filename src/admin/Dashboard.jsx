@@ -17,7 +17,7 @@ import {
   RiArrowRightUpLine
 } from "react-icons/ri";
 
-import logoImg from "../assets/logo.webp";
+import logoImg from "../assets/logo.png";
 
 const Dashboard = () => {
   const [activeIndex, setActiveIndex] = useState(null);
