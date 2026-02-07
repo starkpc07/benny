@@ -1,6 +1,6 @@
 import React from "react";
 import { RiInstagramFill, RiWhatsappFill, RiFacebookFill } from "react-icons/ri";
-import logoImg from "../assets/logo2.png"; // Importing the logo
+import logoImg from "../assets/logo2.png"; 
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
