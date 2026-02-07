@@ -126,7 +126,7 @@ const Dashboard = () => {
                 onClick={() => setActiveIndex(null)}
                 className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
               >
-                <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-zinc-800/50 rounded-full p-2 flex items-center justify-center backdrop-blur-sm border border-white/10 pointer-events-auto">
+                <div className="w-36 h-36 rounded-full p-2 flex items-center justify-center pointer-events-auto">
                   <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
                 </div>
               </motion.div>

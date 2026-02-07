@@ -5,13 +5,13 @@ import {
   RiCalendarEventLine, 
   RiUserSettingsLine, 
   RiLogoutBoxRLine, 
-  RiSettings4Line, 
-  RiFlashlightFill 
+  RiSettings4Line 
 } from "react-icons/ri";
 
 import Dashboard from "./Dashboard";
 import Events from "./Events";
 import FloatingMenu from "./FloatingMenu";
+import logoImg from "../assets/logo.png";
 
 const Admin = ({ user, handleLogout }) => {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -24,17 +24,13 @@ const Admin = ({ user, handleLogout }) => {
     } else {
       document.body.style.overflow = "unset";
     }
-    // Critical: Cleanup on unmount ensures logout doesn't leave body frozen
     return () => { document.body.style.overflow = "unset"; };
   }, [isMobileMenuOpen]);
 
-  // --- ATOMIC LOGOUT FIX ---
   const onLogoutInternal = async () => {
-    // 1. Immediately release the UI lock
     setIsMobileMenuOpen(false);
     document.body.style.overflow = "unset"; 
     
-    // 2. Small delay to let Framer Motion begin exit animations
     setTimeout(() => {
       handleLogout(); 
     }, 100);
@@ -64,42 +60,45 @@ const Admin = ({ user, handleLogout }) => {
 
       <main className="grow pt-24 md:pt-36 pb-10 px-4 max-w-360 md:px-6 md:mx-auto w-full">
         
-        {/* MOBILE BRAND HEADER */}
-        <div className="flex md:hidden bg-white p-5 rounded-4xl border border-zinc-100 shadow-sm items-center gap-4 mb-8">
-          <div className="size-11 rounded-xl bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] flex items-center justify-center text-white shadow-lg shrink-0">
-            <RiFlashlightFill size={22} />
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-sm font-black uppercase tracking-tighter text-zinc-900 leading-none truncate">
-              BENNY<span className="text-[#8B0000]">EVENTS</span>
-            </h2>
-            <p className="text-[7px] font-bold text-zinc-400 uppercase tracking-widest truncate mt-1">Master Control Panel</p>
-          </div>
+        {/* MOBILE BRAND HEADER - Replaced text with Logo */}
+        <div className="flex md:hidden bg-white px-5 py-3 rounded-3xl border border-zinc-100 shadow-sm items-center justify-between mb-8">
+          <img 
+            src={logoImg} 
+            alt="Admin Logo" 
+            className="h-12 w-auto object-contain"
+          />
+          <p className="text-[7px] font-bold text-zinc-400 uppercase tracking-widest text-right">
+            Master Control
+          </p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-6 lg:gap-10 items-start">
           
           <aside className="hidden md:block md:w-65 lg:w-87.5 shrink-0 space-y-6 sticky top-36">
-            <div className="bg-white p-6 rounded-[2.5rem] border border-zinc-100 shadow-sm flex items-center gap-4">
-              <div className="size-12 rounded-xl bg-linear-to-br from-[#8B0000] via-[#FF8C00] to-[#8B0000] flex items-center justify-center text-white shadow-lg shrink-0">
-                <RiFlashlightFill size={26} />
-              </div>
-              <div className="min-w-0">
-                <h2 className="text-base lg:text-lg font-black uppercase tracking-tighter text-zinc-900 leading-none truncate">
-                  BENNY<span className="text-[#8B0000]">EVENTS</span>
-                </h2>
-                <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest truncate mt-1">Master Control Panel</p>
-              </div>
+            {/* DESKTOP LOGO CARD */}
+            <div className="bg-white p-6 rounded-[2.5rem] border border-zinc-100 shadow-sm flex flex-col items-center justify-center">
+              <img 
+                src={logoImg} 
+                alt="Admin Logo" 
+                className="h-24 w-auto object-contain"
+              />
+              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-4">
+                Master Control Panel
+              </p>
             </div>
 
             <nav className="bg-white p-4 rounded-[2.5rem] border border-zinc-100 shadow-sm space-y-2">
-              <p className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.3em] mb-4 mt-2 ml-4">Management</p>
+              <p className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.3em] mb-4 mt-2 ml-4">
+                Management
+              </p>
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] transition-all duration-200 ${
-                    activeTab === item.id ? "bg-zinc-900 text-white shadow-xl shadow-zinc-200" : "text-zinc-400 hover:bg-zinc-50"
+                    activeTab === item.id 
+                      ? "bg-zinc-900 text-white shadow-xl shadow-zinc-200" 
+                      : "text-zinc-400 hover:bg-zinc-50"
                   }`}
                 >
                   <item.icon className="text-xl" /> {item.id}
