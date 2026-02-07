@@ -1,270 +1,584 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { 
-  RiDeleteBin6Line, 
-  RiCheckboxCircleLine, 
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import {
+  RiDeleteBin6Line,
+  RiCheckboxCircleLine,
   RiWallet3Line,
   RiHandCoinLine,
-  RiLockLine,
   RiCalendarEventLine,
-  RiBriefcaseLine,
-  RiRestaurantLine
+  RiWhatsappLine,
+  RiUser3Line,
+  RiEditLine,
+  RiTimeLine,
+  RiMailLine,
+  RiPhoneLine,
+  RiCloseLine,
 } from "react-icons/ri";
 
 const Events = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState(null);
+  const [editModal, setEditModal] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
     const q = query(collection(db, "bookings"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setBookings(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setBookings(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   const formatCur = (num) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
     }).format(num || 0);
   };
 
   const updateField = async (id, field, value) => {
     try {
       await updateDoc(doc(db, "bookings", id), { [field]: value });
-      setEditingId(null);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const deleteBooking = async (id) => {
-    if (window.confirm("Delete record?")) await deleteDoc(doc(db, "bookings", id));
+  const handleDelete = async () => {
+    if (deleteConfirm) {
+      await deleteDoc(doc(db, "bookings", deleteConfirm));
+      setDeleteConfirm(null);
+    }
   };
 
   const stats = {
-    revenue: bookings.reduce((acc, curr) => {
-      if (curr.paymentStatus === "Fully Paid") return acc + (Number(curr.amount) || 0);
-      return acc + (Number(curr.advanceAmount) || 0);
-    }, 0),
-    totalAdvance: bookings.reduce((acc, curr) => acc + (Number(curr.advanceAmount) || 0), 0),
-    receivable: bookings.reduce((acc, curr) => {
-      const total = Number(curr.amount) || 0;
-      const paid = curr.paymentStatus === "Fully Paid" ? total : (Number(curr.advanceAmount) || 0);
-      return acc + (total - paid);
-    }, 0),
+    revenue: bookings.reduce(
+      (acc, curr) =>
+        curr.paymentStatus === "Fully Paid"
+          ? acc + (Number(curr.amount) || 0)
+          : acc + (Number(curr.advanceAmount) || 0),
+      0,
+    ),
+    totalAdvance: bookings.reduce(
+      (acc, curr) => acc + (Number(curr.advanceAmount) || 0),
+      0,
+    ),
+    receivable: bookings.reduce(
+      (acc, curr) =>
+        (Number(curr.amount) || 0) -
+        (curr.paymentStatus === "Fully Paid"
+          ? Number(curr.amount)
+          : Number(curr.advanceAmount) || 0) +
+        acc,
+      0,
+    ),
   };
 
-  const getEventStyle = (s) => {
-    if (s === "Confirmed") return "bg-zinc-900 text-white border-zinc-800";
-    if (s === "Completed") return "bg-zinc-100 text-zinc-500 border-zinc-200";
-    return "bg-amber-100 text-amber-700 border-amber-200";
-  };
-
-  const getPaymentStyle = (s) => {
-    if (s === "Fully Paid") return "bg-emerald-100 text-emerald-700 border-emerald-200";
-    if (s === "Partial") return "bg-blue-100 text-blue-700 border-blue-200";
-    return "bg-red-100 text-red-700 border-red-200";
-  };
-
-  const getCategoryStyle = (cat) => {
-    if (cat === "Corporate") return "bg-purple-50 text-purple-600 border-purple-100";
-    if (cat === "Catering") return "bg-orange-50 text-orange-600 border-orange-100";
-    return "bg-zinc-100 text-zinc-600 border-zinc-200";
-  };
-
-  if (loading) return <div className="p-20 text-center text-sm font-black uppercase text-zinc-400 animate-pulse tracking-widest">Syncing Cloud Database...</div>;
+  if (loading)
+    return (
+      <div className="p-20 text-center text-xl font-black uppercase text-zinc-400 animate-pulse tracking-widest">
+        Syncing Cloud Database...
+      </div>
+    );
 
   return (
-    <div className="w-full space-y-6 max-w-7xl mx-auto p-4 bg-zinc-50/30 min-h-screen">
-      
+    <div className="w-full space-y-8 max-w-7xl mx-auto p-4 bg-zinc-50/30 min-h-screen pb-20">
       {/* STATS CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-linear-to-br from-emerald-600 to-emerald-700 p-6 rounded-[2.5rem] text-white shadow-lg">
-          <div className="flex justify-between items-start">
-            <p className="text-[11px] font-black uppercase opacity-80 tracking-widest">Paid Revenue</p>
-            <RiCheckboxCircleLine size={24} className="opacity-40" />
-          </div>
-          <h2 className="text-3xl font-black mt-2 tracking-tight">{formatCur(stats.revenue)}</h2>
-        </div>
-
-        <div className="bg-linear-to-br from-blue-600 to-blue-700 p-6 rounded-[2.5rem] text-white shadow-lg">
-          <div className="flex justify-between items-start">
-            <p className="text-[11px] font-black uppercase opacity-80 tracking-widest">Advance Collected</p>
-            <RiHandCoinLine size={24} className="opacity-40" />
-          </div>
-          <h2 className="text-3xl font-black mt-2 tracking-tight">{formatCur(stats.totalAdvance)}</h2>
-        </div>
-
-        <div className="bg-zinc-900 p-6 rounded-[2.5rem] text-white shadow-lg border-b-8 border-amber-500">
-          <div className="flex justify-between items-start">
-            <p className="text-[11px] font-black uppercase opacity-80 tracking-widest">Balance Pending</p>
-            <RiWallet3Line size={24} className="text-amber-500" />
-          </div>
-          <h2 className="text-3xl font-black mt-2 text-amber-400 tracking-tight">{formatCur(stats.receivable)}</h2>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+        <StatCard
+          title="Paid Revenue"
+          value={stats.revenue}
+          icon={<RiCheckboxCircleLine />}
+          color="from-emerald-600 to-emerald-700"
+        />
+        <StatCard
+          title="Advance"
+          value={stats.totalAdvance}
+          icon={<RiHandCoinLine />}
+          color="from-blue-600 to-blue-700"
+        />
+        <StatCard
+          title="Pending"
+          value={stats.receivable}
+          icon={<RiWallet3Line />}
+          color="from-zinc-800 to-zinc-900"
+          border="border-b-2 md:border-b-4 border-amber-500"
+          isPending
+        />
       </div>
 
-      {/* DESKTOP TABLE */}
-      <div className="hidden md:block bg-white rounded-[3rem] border border-zinc-200 shadow-xl overflow-hidden">
-        <table className="w-full text-left text-[12px] font-bold">
-          <thead className="bg-zinc-50/50 border-b border-zinc-100">
-            <tr>
-              <th className="px-8 py-6 uppercase text-zinc-400 tracking-widest">Client & Date</th>
-              <th className="px-8 py-6 uppercase text-zinc-400 text-center tracking-widest">Category</th>
-              <th className="px-8 py-6 uppercase text-zinc-400 text-center tracking-widest">Total Deal</th>
-              <th className="px-8 py-6 uppercase text-zinc-400 text-center tracking-widest">Advance</th>
-              <th className="px-8 py-6 uppercase text-zinc-400 text-center tracking-widest">Status Controls</th>
-              <th className="px-8 py-6 text-right"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-50">
-            {bookings.map((item) => (
-              <tr key={item.id} className="hover:bg-zinc-50/80 transition-all">
-                <td className="px-8 py-5">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-zinc-900 text-[15px] uppercase font-black leading-tight">{item.clientName || "Guest"}</span>
-                    <span className="text-[11px] text-zinc-400 uppercase flex items-center gap-1.5 font-bold">
-                      <RiCalendarEventLine className="text-blue-500" /> {item.eventDate}
+      {/* DESKTOP VIEW (Visible only on Large Desktop screens) */}
+      <div className="hidden xl:block space-y-8">
+        {bookings.map((item) => (
+          <div
+            key={item.id}
+            className="bg-white rounded-[3rem] border border-zinc-200 shadow-sm overflow-hidden hover:shadow-xl transition-all border-t-8 border-t-zinc-900"
+          >
+            {/* ROW 1: PROFILE & PRIMARY ACTIONS */}
+            <div className="flex items-center justify-between p-8 border-b border-zinc-50">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg rotate-3">
+                  <RiUser3Line size={32} />
+                </div>
+                <div>
+                  <h4 className="font-black text-2xl uppercase tracking-tighter text-zinc-900">
+                    {item.clientName || "Guest User"}
+                  </h4>
+                  <div className="flex items-center gap-4 mt-1">
+                    <a
+                      href={`https://wa.me/91${item.clientPhone}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-2 text-sm text-green-600 font-black hover:scale-105 transition-transform"
+                    >
+                      <RiWhatsappLine size={20} /> {item.clientPhone}
+                    </a>
+                    <span className="text-zinc-300">|</span>
+                    <span className="flex items-center gap-1 text-xs text-zinc-400 font-bold">
+                      <RiMailLine /> {item.clientEmail || "No Email Provided"}
                     </span>
                   </div>
-                </td>
-                <td className="px-8 py-5 text-center">
-                  <select 
-                    value={item.eventCategory || "Catering"} 
-                    onChange={(e) => updateField(item.id, "eventCategory", e.target.value)}
-                    className={`text-[10px] font-black uppercase py-1.5 px-3 rounded-full border transition-all cursor-pointer ${getCategoryStyle(item.eventCategory)}`}
-                  >
-                    <option value="Catering">Catering</option>
-                    <option value="Corporate">Corporate</option>
-                    <option value="Wedding">Wedding</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </td>
-                <td className="px-8 py-5 text-center">
-                  <span onClick={() => setEditingId(item.id + 'amt')} className="text-zinc-900 text-[14px] font-black cursor-pointer hover:underline decoration-2 underline-offset-4">
-                    {editingId === item.id + 'amt' ? (
-                      <input autoFocus className="w-24 border-b-2 border-zinc-900 outline-none bg-transparent" defaultValue={item.amount} onBlur={(e) => updateField(item.id, "amount", e.target.value)} />
-                    ) : formatCur(item.amount)}
-                  </span>
-                </td>
-                <td className="px-8 py-5 text-center">
-                  <div className="relative inline-block">
-                    <input 
-                      disabled={item.paymentStatus !== "Partial"}
-                      type="number"
-                      className={`w-32 text-center border-2 rounded-2xl py-2 text-[12px] font-black outline-none transition-all ${item.paymentStatus === 'Partial' ? 'bg-white border-blue-200 focus:border-blue-600 shadow-sm' : 'bg-zinc-100 border-transparent text-zinc-300 cursor-not-allowed opacity-40'}`}
-                      value={item.advanceAmount || ""}
-                      onChange={(e) => updateField(item.id, "advanceAmount", e.target.value)}
-                    />
-                    {item.paymentStatus !== "Partial" && <RiLockLine className="absolute top-1/2 -translate-y-1/2 right-3 text-zinc-300" size={16} />}
-                  </div>
-                </td>
-                <td className="px-8 py-5 text-center space-x-3">
-                  <select 
-                    value={item.paymentStatus || "Unpaid"} 
-                    onChange={(e) => updateField(item.id, "paymentStatus", e.target.value)}
-                    className={`text-[10px] font-black uppercase py-2.5 px-4 rounded-2xl border outline-none cursor-pointer ${getPaymentStyle(item.paymentStatus)}`}
-                  >
-                    <option value="Unpaid">Unpaid</option>
-                    <option value="Partial">Partial</option>
-                    <option value="Fully Paid">Fully Paid</option>
-                  </select>
-                  <select 
-                    value={item.status || "Pending"} 
-                    onChange={(e) => updateField(item.id, "status", e.target.value)}
-                    className={`text-[10px] font-black uppercase py-2.5 px-4 rounded-2xl border outline-none cursor-pointer ${getEventStyle(item.status)}`}
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Completed">Completed</option>
-                  </select>
-                </td>
-                <td className="px-8 py-5 text-right">
-                  <button onClick={() => deleteBooking(item.id)} className="p-3 text-zinc-300 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all">
-                    <RiDeleteBin6Line size={20} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* MOBILE LIST - COMPACT & BOLD */}
-      <div className="grid grid-cols-1 gap-5 md:hidden">
-        {bookings.map((item) => (
-          <div key={item.id} className="bg-white p-6 rounded-[2.5rem] border border-zinc-200 shadow-md space-y-5">
-            {/* Header: Name, Category & Total */}
-            <div className="flex justify-between items-start border-b border-zinc-50 pb-4">
-              <div className="space-y-1.5">
-                <div className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border inline-block ${getCategoryStyle(item.eventCategory)}`}>
-                  {item.eventCategory || "Catering"}
                 </div>
-                <h4 className="text-[18px] font-black text-zinc-900 uppercase leading-none tracking-tight">{item.clientName}</h4>
-                <p className="text-[11px] font-bold text-zinc-400 uppercase flex items-center gap-1">
-                  <RiCalendarEventLine className="text-zinc-300" /> {item.eventDate}
-                </p>
               </div>
-              <div className="bg-zinc-900 px-4 py-2 rounded-2xl text-center shadow-lg shadow-zinc-200">
-                <p className="text-[14px] font-black text-white">{formatCur(item.amount)}</p>
-                <p className="text-[8px] font-black text-zinc-400 uppercase leading-none mt-0.5">Total</p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setEditModal(item)}
+                  className="p-4 bg-zinc-50 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 rounded-2xl transition-all"
+                >
+                  <RiEditLine size={22} />
+                </button>
+                <button
+                  onClick={() => setDeleteConfirm(item.id)}
+                  className="p-4 bg-red-50 text-red-300 hover:text-red-600 hover:bg-red-100 rounded-2xl transition-all"
+                >
+                  <RiDeleteBin6Line size={22} />
+                </button>
               </div>
             </div>
 
-            {/* Status Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <p className="text-[10px] font-black text-zinc-400 uppercase ml-2">Event Status</p>
-                <select 
-                  value={item.status || "Pending"} 
-                  onChange={(e) => updateField(item.id, "status", e.target.value)}
-                  className={`w-full text-[11px] font-black uppercase py-3.5 rounded-3xl border outline-none text-center shadow-sm ${getEventStyle(item.status)}`}
+            {/* ROW 2: EVENT DATE & STATUS */}
+            <div className="grid grid-cols-3 items-center px-8 py-4 bg-zinc-50/50 border-b border-zinc-100">
+              <div className="flex items-center gap-3 font-black text-zinc-900 uppercase">
+                <RiCalendarEventLine className="text-blue-500" size={20} />
+                <span className="text-sm text-zinc-400 mr-2">Event Date:</span>
+                <span className="text-lg">{item.eventDate || "Not Set"}</span>
+              </div>
+              <div className="flex items-center justify-center gap-3 font-black uppercase">
+                <span className="text-xs text-zinc-400">Status:</span>
+                <select
+                  value={item.status || "Pending"}
+                  onChange={(e) =>
+                    updateField(item.id, "status", e.target.value)
+                  }
+                  className="bg-white border border-zinc-200 rounded-xl px-4 py-2 text-xs outline-none shadow-sm cursor-pointer"
                 >
                   <option value="Pending">Pending</option>
                   <option value="Confirmed">Confirmed</option>
                   <option value="Completed">Completed</option>
                 </select>
               </div>
-              <div className="space-y-1">
-                <p className="text-[10px] font-black text-zinc-400 uppercase ml-2">Pay Status</p>
-                <select 
-                  value={item.paymentStatus || "Unpaid"} 
-                  onChange={(e) => updateField(item.id, "paymentStatus", e.target.value)}
-                  className={`w-full text-[11px] font-black uppercase py-3.5 rounded-3xl border outline-none text-center shadow-sm ${getPaymentStyle(item.paymentStatus)}`}
+            </div>
+
+            {/* ROW 3: CATEGORY & TIMESTAMP MERGED */}
+            <div className="px-8 py-4 border-b border-zinc-50 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <span className="text-[11px] font-black uppercase text-zinc-400 tracking-widest shrink-0">
+                  Service Category:
+                </span>
+                <select
+                  value={item.eventCategory || ""}
+                  onChange={(e) =>
+                    updateField(item.id, "eventCategory", e.target.value)
+                  }
+                  className="bg-purple-50 text-purple-700 border border-purple-100 rounded-xl px-6 py-2 text-[10px] font-black uppercase outline-none cursor-pointer"
                 >
-                  <option value="Unpaid">Unpaid</option>
-                  <option value="Partial">Partial</option>
-                  <option value="Fully Paid">Fully Paid</option>
+                  <option value="" disabled>
+                    Choose Category
+                  </option>
+                  <option value="Catering">Catering Service</option>
+                  <option value="Corporate">Corporate Event</option>
+                  <option value="Wedding">Wedding Ceremony</option>
+                  <option value="Photography">Photography</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className="bg-zinc-200/50 px-5 py-2 rounded-full flex items-center gap-2 text-[10px] font-black uppercase text-zinc-500 italic shrink-0">
+                <RiTimeLine size={14} />
+                Booked:{" "}
+                {item.createdAt
+                  ?.toDate()
+                  .toLocaleString([], {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  }) || "N/A"}
+              </div>
+            </div>
+
+            {/* ROW 4: FINANCIALS */}
+            <div className="grid grid-cols-3 bg-zinc-900 py-8 px-8 text-center">
+              <div className="border-r border-zinc-800">
+                <p className="text-[10px] font-black text-zinc-500 uppercase mb-2">
+                  Total Contract
+                </p>
+                <div className="flex items-center justify-center gap-1">
+                  <span className="text-zinc-500 font-black text-xl">₹</span>
+                  <input
+                    type="number"
+                    className="bg-transparent text-emerald-400 text-2xl font-black text-center w-32 outline-none focus:text-emerald-400 transition-colors"
+                    value={item.amount || 0}
+                    onChange={(e) =>
+                      updateField(item.id, "amount", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+              <div className="border-r border-zinc-800">
+                <p className="text-[10px] font-black text-zinc-500 uppercase mb-2">
+                  Advance Received
+                </p>
+                <div className="flex items-center justify-center gap-1">
+                  <span className="text-zinc-500 font-black text-xl">₹</span>
+                  <input
+                    type="number"
+                    className="bg-transparent text-blue-400 text-2xl font-black text-center w-32 outline-none focus:text-white transition-colors"
+                    value={item.advanceAmount || 0}
+                    onChange={(e) =>
+                      updateField(item.id, "advanceAmount", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+              <div className="border-r border-zinc-800">
+                <p className="text-[10px] font-black text-zinc-500 uppercase mb-2">
+                  Pending Balance
+                </p>
+                <p className="text-amber-500 text-2xl font-black">
+                  {formatCur((item.amount || 0) - (item.advanceAmount || 0))}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-center px-6 py-6">
+              <select
+                value={item.paymentStatus || "Unpaid"}
+                onChange={(e) =>
+                  updateField(item.id, "paymentStatus", e.target.value)
+                }
+                className={`py-3 rounded-2xl text-[11px] text-center font-black uppercase outline-none cursor-pointer border-2 transition-all ${getPaymentStyle(item.paymentStatus)}`}
+              >
+                <option value="Unpaid">Unpaid</option>
+                <option value="Partial">Partial Payment</option>
+                <option value="Fully Paid">Fully Paid</option>
+              </select>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* MOBILE & TABLET VIEW (Unified card layout) */}
+      <div className="xl:hidden grid grid-cols-1 gap-6">
+        {bookings.map((item) => (
+          <div
+            key={item.id}
+            className="bg-white rounded-[3rem] border border-zinc-200 shadow-xl overflow-hidden border-t-8 border-t-zinc-900 flex flex-col h-full"
+          >
+            <div className="p-6 pb-4 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg">
+                  <RiUser3Line size={24} />
+                </div>
+                <div>
+                  <h4 className="text-lg font-black uppercase leading-tight text-zinc-900">
+                    {item.clientName || "Guest"}
+                  </h4>
+                  <a
+                    href={`tel:${item.clientPhone}`}
+                    className="text-xs font-bold text-zinc-400"
+                  >
+                    {item.clientPhone}
+                  </a>
+                </div>
+              </div>
+              <a
+                href={`https://wa.me/91${item.clientPhone}`}
+                className="w-12 h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center shadow-inner active:scale-90 transition-transform"
+              >
+                <RiWhatsappLine size={24} />
+              </a>
+            </div>
+
+            <span className="flex items-center justify-center gap-1 text-xs text-zinc-400 font-bold mb-4 px-4">
+              <RiMailLine /> {item.clientEmail || "No Email Provided"}
+            </span>
+
+            <div className="grid grid-cols-2 border-y border-zinc-100 bg-zinc-50/50">
+              <div className="p-5 border-r border-zinc-100 text-center">
+                <p className="text-[9px] font-black uppercase text-zinc-400 mb-1 italic">
+                  Event Date
+                </p>
+                <p className="text-sm font-black text-zinc-900">
+                  {item.eventDate || "---"}
+                </p>
+              </div>
+              <div className="p-5 text-center">
+                <p className="text-[9px] font-black uppercase text-zinc-400 mb-1 italic">
+                  Event Status
+                </p>
+                <select
+                  onChange={(e) =>
+                    updateField(item.id, "status", e.target.value)
+                  }
+                  value={item.status || "Pending"}
+                  className="text-xs font-black uppercase text-zinc-900 bg-transparent outline-none"
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Confirmed">Confirmed</option>
+                  <option value="Completed">Completed</option>
                 </select>
               </div>
             </div>
 
-            {/* Advance & Delete Row */}
-            <div className="flex items-center gap-3 bg-zinc-50 p-2 rounded-4xl">
-              <div className="flex-1 relative">
-                <input 
-                  disabled={item.paymentStatus !== "Partial"}
-                  type="number"
-                  placeholder="ADVANCE"
-                  className={`w-full text-center py-3 rounded-3xl text-[12px] font-black border transition-all ${item.paymentStatus === 'Partial' ? 'border-blue-200 bg-white text-blue-700 shadow-inner' : 'bg-transparent border-transparent text-transparent opacity-0'}`}
-                  value={item.advanceAmount || ""}
-                  onChange={(e) => updateField(item.id, "advanceAmount", e.target.value)}
-                />
-                {item.paymentStatus === 'Partial' && <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] text-blue-400 font-black">₹</span>}
+            <div className="p-5 bg-white border-b border-zinc-100 text-center">
+              <p className="text-[9px] font-black uppercase text-zinc-400 mb-1">
+                Service Category
+              </p>
+              <select
+                onChange={(e) =>
+                  updateField(item.id, "eventCategory", e.target.value)
+                }
+                value={item.eventCategory || ""}
+                className="text-xs font-black uppercase text-purple-600 bg-transparent outline-none w-full text-center"
+              >
+                <option value="" disabled>
+                  Choose Category
+                </option>
+                <option value="Catering">Catering</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Wedding">Wedding</option>
+                <option value="Photography">Photography</option>
+              </select>
+            </div>
+
+            <div className="flex justify-center py-2">
+              <div className="bg-zinc-200/50 px-6 py-2 rounded-full flex items-center gap-2 text-[11px] font-black uppercase text-zinc-500 italic">
+                <RiTimeLine size={16} /> Booked:{" "}
+                {item.createdAt?.toDate().toLocaleString([], {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                }) || "N/A"}
               </div>
-              <button onClick={() => deleteBooking(item.id)} className="p-4 bg-white text-red-500 rounded-full shadow-sm border border-red-50 active:scale-90 transition-transform">
-                <RiDeleteBin6Line size={20} />
+            </div>
+
+            <div className="grid grid-cols-3 bg-zinc-900 p-5 text-center gap-2 mt-auto">
+              <div>
+                <p className="text-[8px] font-black uppercase text-zinc-500 mb-1">
+                  Total
+                </p>
+                <input
+                  type="number"
+                  value={item.amount || 0}
+                  onChange={(e) =>
+                    updateField(item.id, "amount", e.target.value)
+                  }
+                  className="bg-transparent text-white text-lg font-black w-full text-center outline-none"
+                />
+              </div>
+              <div>
+                <p className="text-[8px] font-black uppercase text-zinc-500 mb-1">
+                  Advance
+                </p>
+                <input
+                  type="number"
+                  value={item.advanceAmount || 0}
+                  onChange={(e) =>
+                    updateField(item.id, "advanceAmount", e.target.value)
+                  }
+                  className="bg-transparent text-blue-400 text-lg font-black w-full text-center outline-none"
+                />
+              </div>
+              <div>
+                <p className="text-[8px] font-black uppercase text-zinc-500 mb-1">
+                  Balance
+                </p>
+                <p className="text-amber-500 text-lg font-black truncate">
+                  {formatCur((item.amount || 0) - (item.advanceAmount || 0))}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center px-6 py-3 bg-white">
+              <select
+                value={item.paymentStatus || "Unpaid"}
+                onChange={(e) =>
+                  updateField(item.id, "paymentStatus", e.target.value)
+                }
+                className={`px-3 py-3 rounded-2xl text-[11px] font-black uppercase outline-none cursor-pointer border-2 transition-all w-full text-center ${getPaymentStyle(item.paymentStatus)}`}
+              >
+                <option value="Unpaid">Unpaid</option>
+                <option value="Partial">Partial</option>
+                <option value="Fully Paid">Fully Paid</option>
+              </select>
+            </div>
+
+            <div className="flex bg-white border-t border-zinc-100">
+              <button
+                onClick={() => setEditModal(item)}
+                className="flex-1 py-5 flex items-center justify-center gap-2 text-xs font-black uppercase text-zinc-400 border-r border-zinc-100 active:bg-zinc-50"
+              >
+                <RiEditLine size={18} /> Edit
+              </button>
+              <button
+                onClick={() => setDeleteConfirm(item.id)}
+                className="flex-1 py-5 flex items-center justify-center gap-2 text-xs font-black uppercase text-red-400 active:bg-red-50"
+              >
+                <RiDeleteBin6Line size={18} /> Delete
               </button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* MODALS (Edit Profile & Delete Confirm) */}
+      {editModal && (
+        <div className="fixed inset-0 bg-zinc-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-[3rem] p-10 space-y-8 shadow-2xl relative">
+            <button
+              onClick={() => setEditModal(null)}
+              className="absolute top-6 right-6 p-2 bg-zinc-100 rounded-full"
+            >
+              <RiCloseLine size={24} />
+            </button>
+            <div className="text-center">
+              <h3 className="text-3xl font-black uppercase tracking-tighter">
+                Update Profile
+              </h3>
+              <p className="text-zinc-400 font-bold text-sm">
+                Modify client identification details
+              </p>
+            </div>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-zinc-400 ml-4">
+                  Full Client Name
+                </label>
+                <input
+                  className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-3xl p-5 text-xl font-black outline-none focus:border-zinc-900 focus:bg-white transition-all"
+                  value={editModal.clientName}
+                  onChange={(e) =>
+                    setEditModal({ ...editModal, clientName: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-zinc-400 ml-4">
+                  Contact Number
+                </label>
+                <input
+                  className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-3xl p-5 text-xl font-black outline-none focus:border-zinc-900 focus:bg-white transition-all"
+                  value={editModal.clientPhone}
+                  onChange={(e) =>
+                    setEditModal({ ...editModal, clientPhone: e.target.value })
+                  }
+                />
+              </div>
+              <button
+                onClick={() => {
+                  updateField(editModal.id, "clientName", editModal.clientName);
+                  updateField(
+                    editModal.id,
+                    "clientPhone",
+                    editModal.clientPhone,
+                  );
+                  setEditModal(null);
+                }}
+                className="w-full bg-zinc-900 text-white py-6 rounded-3xl text-sm font-black uppercase shadow-xl hover:bg-black transition-all mt-4"
+              >
+                Sync Updates
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xl z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-sm:max-w-xs max-w-sm rounded-[3rem] p-10 text-center space-y-8 shadow-2xl">
+            <div className="w-24 h-24 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto animate-bounce">
+              <RiDeleteBin6Line size={48} />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black uppercase tracking-tighter">
+                Confirm Deletion
+              </h3>
+              <p className="text-zinc-400 text-sm font-bold mt-2">
+                All data for this record will be purged permanently.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleDelete}
+                className="w-full py-5 bg-red-600 text-white rounded-2xl text-xs font-black uppercase shadow-lg shadow-red-200"
+              >
+                Delete Permanently
+              </button>
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="w-full py-5 bg-zinc-100 text-zinc-500 rounded-2xl text-xs font-black uppercase"
+              >
+                Keep Record
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+};
+
+const StatCard = ({
+  title,
+  value,
+  icon,
+  color,
+  border = "",
+  isPending = false,
+}) => (
+  <div
+    className={`bg-linear-to-br ${color} p-4 md:p-5 rounded-3xl text-white shadow-lg ${border} flex flex-col justify-between`}
+  >
+    <div className="flex justify-between items-center mb-1">
+      <p className="text-[10px] md:text-[11px] font-black uppercase opacity-70 tracking-wider">
+        {title}
+      </p>
+      <div className="opacity-40 scale-90">{icon}</div>
+    </div>
+    <h2
+      className={`text-xl md:text-2xl font-black tracking-tighter ${isPending ? "text-amber-400" : ""}`}
+    >
+      {new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+      }).format(value)}
+    </h2>
+  </div>
+);
+
+const getPaymentStyle = (s) => {
+  if (s === "Fully Paid") return "text-emerald-400 border-emerald-900 ";
+  if (s === "Partial") return "text-blue-400 border-blue-900 ";
+  return "text-red-400 border-red-900";
 };
 
 export default Events;

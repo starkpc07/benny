@@ -99,7 +99,7 @@ const Dashboard = () => {
           <StatCard icon={<RiCalendarCheckLine />} label="All Active" value={upcomingCount.toString().padStart(2, '0')} color="text-zinc-900" />
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1  md:grid-cols-2 gap-3 md:gap-4">
           <MoneyCard label="Balance Due" value={formatCur(totalBalance)} icon={<RiMoneyDollarCircleLine />} type="balance" />
           <MoneyCard label="Paid Revenue" value={formatCur(totalGrowth)} icon={<RiArrowRightUpLine />} type="growth" />
         </div>

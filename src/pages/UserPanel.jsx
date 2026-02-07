@@ -1,26 +1,55 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { signOut } from "firebase/auth";
+import { signOut, updateProfile } from "firebase/auth";
 import { auth, db } from "../firebase";
-import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { 
-  RiFileList3Line, RiLogoutBoxRLine, RiCalendarEventLine,
-  RiCalendarCheckLine, RiUser3Fill, RiAddCircleLine,
-  RiMoneyDollarCircleLine
+  RiCalendarEventLine, RiUser3Fill, RiAddCircleLine, 
+  RiLogoutBoxRLine, RiVipCrownFill, RiEditLine, 
+  RiCloseLine, RiSmartphoneLine, RiUserLine, RiCheckboxCircleFill, RiLockPasswordLine
 } from "react-icons/ri";
 
 const UserPanel = ({ user }) => {
   const navigate = useNavigate();
   const [myBookings, setMyBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  
+  // Profile States
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isForceOpen, setIsForceOpen] = useState(false); // For new users
+  const [newName, setNewName] = useState(user?.displayName || "");
+  const [newPhone, setNewPhone] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     if (!user?.uid) return;
 
-    // Connects to the same "bookings" collection managed by Events/Dashboard
+    const loadUserData = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setNewPhone(data.phone || "");
+          setNewName(data.fullName || user.displayName || "");
+          
+          // Force profile completion if data is missing
+          if (!data.phone || !data.fullName) {
+            setIsForceOpen(true);
+          }
+        } else {
+          // New user logic: Create doc and force setup
+          setIsForceOpen(true);
+        }
+      } catch (err) {
+        console.error("Error loading profile:", err);
+      }
+    };
+    loadUserData();
+
+    // Listen for bookings (Synced field names with Events.jsx)
     const q = query(
       collection(db, "bookings"),
       where("userId", "==", user.uid),
@@ -28,145 +57,167 @@ const UserPanel = ({ user }) => {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setMyBookings(docs);
-      setLoading(false);
-      setError(null);
-    }, (err) => {
-      console.error("Firestore Error:", err);
-      setError(err.message);
+      setMyBookings(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, [user]);
 
-  const formatDate = (dateStr) => {
-    try {
-      if (!dateStr) return { month: "TBD", day: "--" };
-      const date = new Date(dateStr);
-      const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-      return { month: months[date.getMonth()], day: date.getDate() };
-    } catch { return { month: "ERR", day: "!!" }; }
+  const handlePhoneChange = (e) => {
+    const val = e.target.value.replace(/\D/g, ""); 
+    if (val.length <= 10) setNewPhone(val);
   };
 
-  // Helper to format currency for the user
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    if (!user?.uid) return;
+    if (newPhone.length !== 10) return alert("Phone must be exactly 10 digits");
+    if (newName.length > 26) return alert("Name cannot exceed 26 characters");
+
+    setIsUpdating(true);
+    try {
+      // 1. Update Firebase Auth
+      await updateProfile(auth.currentUser, { displayName: newName });
+      
+      // 2. Update Firestore (Using setDoc with merge to handle new/existing users)
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(userRef, {
+        fullName: newName,
+        phone: newPhone,
+        email: user.email,
+        uid: user.uid,
+        updatedAt: new Date()
+      }, { merge: true });
+
+      setIsEditOpen(false);
+      setIsForceOpen(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (err) {
+      console.error("Update failed:", err);
+      alert("System Error: Could not save profile.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const formatCur = (num) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency", currency: "INR", maximumFractionDigits: 0,
     }).format(num || 0);
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] pt-24 md:pt-32 pb-32 px-4 md:px-10 flex flex-col items-center">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-5xl">
-        
-        {/* PROFILE HEADER */}
-        <div className="bg-white rounded-4xl p-6 md:p-10 shadow-sm border border-zinc-100 flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="size-24 rounded-full bg-zinc-900 border-2 border-white shadow-lg flex items-center justify-center text-white overflow-hidden shrink-0">
-              {user?.photoURL ? <img src={user.photoURL} alt="profile" className="w-full h-full object-cover" /> : <RiUser3Fill size={40} />}
+    <div className="min-h-screen bg-[#fcfaf7] pt-24 md:pt-36 pb-32 px-4 md:px-6 w-full max-w-360 md:mx-auto">
+      
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div initial={{ y: -100 }} animate={{ y: 20 }} exit={{ y: -100 }} className="fixed top-24 left-1/2 -translate-x-1/2 z-200 bg-zinc-900 border border-amber-500 text-amber-500 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black uppercase text-[10px] tracking-widest">
+            <RiCheckboxCircleFill size={20} /> Profile Secured
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        {/* HEADER */}
+        <div className="relative overflow-hidden bg-white rounded-[2.5rem] p-6 md:p-10 border border-amber-100 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
+          <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+            <div className="relative group cursor-pointer" onClick={() => setIsEditOpen(true)}>
+              <div className="size-28 rounded-4xl bg-linear-to-tr from-amber-600 to-yellow-400 border-4 border-white shadow-2xl flex items-center justify-center text-white rotate-3">
+                <RiUser3Fill size={48} />
+              </div>
+              <div className="absolute -bottom-2 -right-2 size-10 bg-zinc-900 rounded-full flex items-center justify-center text-amber-400 border-2 border-white"><RiEditLine size={18} /></div>
             </div>
             <div className="text-center md:text-left">
-              <h1 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">{user?.displayName || "Guest User"}</h1>
-              <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{user?.email}</p>
+              <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                <RiVipCrownFill className="text-amber-500" size={14} />
+                <p className="text-[9px] font-black text-amber-600 uppercase tracking-[0.3em]">Premium Member</p>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-black text-zinc-900 uppercase tracking-tighter leading-none">{user?.displayName || "Setup Required"}</h1>
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-2">{user?.email}</p>
             </div>
           </div>
-          <button onClick={() => signOut(auth)} className="flex items-center gap-2 px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl transition-colors text-[10px] font-black uppercase tracking-widest">
-            <RiLogoutBoxRLine size={16} /> Logout
-          </button>
+          <button onClick={() => signOut(auth)} className="flex items-center gap-3 px-8 py-4 bg-zinc-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest"><RiLogoutBoxRLine size={18} /> Log Out</button>
         </div>
 
-        {/* BOOKING SECTION */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between px-2">
-            <h3 className="text-sm font-black uppercase tracking-widest text-zinc-900 flex items-center gap-2">
-              <RiCalendarEventLine className="text-orange-500" /> My Schedule
-            </h3>
-            {myBookings.length > 0 && (
-              <button onClick={() => navigate("/book")} className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-all shadow-lg active:scale-95">
-                <RiAddCircleLine size={16} /> Book New
-              </button>
-            )}
+        {/* TIMELINE */}
+        <div className="space-y-8">
+          <div className="flex items-center justify-between px-4 border-b border-amber-100 pb-4">
+            <h3 className="text-xl font-black uppercase tracking-tighter text-zinc-900 flex items-center gap-3"><RiCalendarEventLine className="text-amber-500" /> Event Timeline</h3>
+            <button onClick={() => navigate("/book")} className="flex items-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg"><RiAddCircleLine size={16} /> New Booking</button>
           </div>
-          
-          <div className="grid gap-4">
-            {loading ? (
-              <div className="bg-white p-20 rounded-[3rem] border border-zinc-100 flex flex-col items-center justify-center gap-4">
-                <div className="size-10 border-4 border-zinc-100 border-t-orange-500 rounded-full animate-spin" />
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Syncing Records...</p>
-              </div>
-            ) : error ? (
-              <div className="bg-red-50 p-8 rounded-3xl border border-red-100 text-center text-red-600 text-[10px] font-black uppercase tracking-widest">
-                {error}
-              </div>
-            ) : myBookings.length > 0 ? (
-                <AnimatePresence mode="popLayout">
-                  {myBookings.map((booking) => {
-                    const { month, day } = formatDate(booking.eventDate);
-                    // Determine which status color to show based on Admin input
-                    const isConfirmed = booking.status === 'Confirmed';
-                    const isCompleted = booking.status === 'Completed';
 
-                    return (
-                      <motion.div key={booking.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white p-6 rounded-3xl border border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-4 group hover:shadow-md transition-all">
-                        <div className="flex items-center gap-5 w-full">
-                          <div className="size-14 bg-zinc-900 rounded-2xl flex flex-col items-center justify-center text-white font-black text-[10px] leading-tight shrink-0">
-                            <span className="text-orange-500">{month}</span>
-                            <span>{day}</span>
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="text-sm font-black text-zinc-900 uppercase tracking-tight">
-                              {booking.eventCategory || booking.eventType || "Event"}
-                            </h4>
-                            <div className="flex flex-wrap items-center gap-3 mt-1">
-                               <div className="flex items-center gap-1.5">
-                                 <span className={`size-1.5 rounded-full ${isConfirmed ? 'bg-green-500' : isCompleted ? 'bg-zinc-300' : 'bg-orange-500 animate-pulse'}`} />
-                                 <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-tighter">
-                                   {booking.status || 'Processing'}
-                                 </p>
-                               </div>
-                               {/* Payment Indicator Bridge */}
-                               <div className="flex items-center gap-1.5 border-l border-zinc-100 pl-3">
-                                 <RiMoneyDollarCircleLine className={booking.paymentStatus === 'Fully Paid' ? 'text-emerald-500' : 'text-zinc-300'} size={12} />
-                                 <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-tighter">
-                                   {booking.paymentStatus || 'Unpaid'}
-                                 </p>
-                               </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-4 sm:pt-0 border-zinc-50">
-                          <div className="text-left sm:text-right pr-4">
-                            <p className="text-[14px] font-black text-zinc-900 leading-none">{formatCur(booking.amount)}</p>
-                            <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-1">Total Deal</p>
-                          </div>
-                          <RiFileList3Line className="text-zinc-200 group-hover:text-orange-500 transition-colors" size={24} />
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
-            ) : (
-              /* EMPTY STATE */
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white p-12 md:p-20 rounded-[3rem] border-2 border-dashed border-zinc-100 flex flex-col items-center justify-center text-center">
-                <div className="size-24 bg-orange-50 rounded-full flex items-center justify-center mb-6 text-orange-500">
-                  <RiCalendarCheckLine size={48} />
+          <div className="grid gap-12">
+            {myBookings.map((booking) => (
+              <div key={booking.id} className="animated-border-box">
+                <div className="relative bg-white rounded-[2.4rem] overflow-hidden z-10">
+                  <div className="p-8 flex items-center gap-6">
+                    <div className="size-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 border border-amber-100"><RiCalendarEventLine size={24} /></div>
+                    <div>
+                      <p className="text-[10px] font-black text-amber-600 uppercase mb-1">{booking.eventCategory}</p>
+                      <h4 className="text-xl font-black text-zinc-900 uppercase tracking-tighter">{booking.eventDate}</h4>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 bg-zinc-900 p-6 text-center divide-x divide-white/5">
+                    <div><p className="text-[8px] font-black text-zinc-500 uppercase">Total</p><p className="text-white font-black">{formatCur(booking.amount)}</p></div>
+                    <div><p className="text-[8px] font-black text-emerald-500 uppercase">Paid</p><p className="text-emerald-400 font-black">{formatCur(booking.advanceAmount)}</p></div>
+                    <div><p className="text-[8px] font-black text-amber-500 uppercase">Balance</p><p className="text-amber-500 font-black">{formatCur(Number(booking.amount || 0) - Number(booking.advanceAmount || 0))}</p></div>
+                  </div>
                 </div>
-                <h4 className="text-xl font-black text-zinc-900 uppercase tracking-tight mb-2">Ready to plan?</h4>
-                <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest max-w-75 mb-8 leading-relaxed">Secure your date for an unforgettable experience.</p>
-                <button onClick={() => navigate("/book")} className="group relative overflow-hidden py-5 px-12 rounded-2xl font-black uppercase text-[12px] tracking-[0.2em] text-white shadow-2xl transition-all active:scale-95">
-                  <div className="absolute inset-0 bg-linear-to-r from-[#8B0000] via-[#FF8C00] to-[#8B0000] bg-size-[200%_100%] transition-all duration-700 group-hover:bg-position-[100%_0%]" />
-                  <span className="relative">Create First Booking</span>
-                </button>
-              </motion.div>
-            )}
+              </div>
+            ))}
           </div>
         </div>
       </motion.div>
+
+      {/* COMPULSORY SETUP & EDIT MODAL */}
+      <AnimatePresence>
+        {(isEditOpen || isForceOpen) && (
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-zinc-950/90 backdrop-blur-sm" onClick={() => !isForceOpen && setIsEditOpen(false)} />
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-md bg-white rounded-[2.5rem] p-8 shadow-2xl border border-amber-200">
+              {!isForceOpen && <button onClick={() => setIsEditOpen(false)} className="absolute top-6 right-6 p-2 bg-zinc-50 rounded-full"><RiCloseLine size={20} /></button>}
+              <div className="text-center mb-8">
+                <div className="size-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4"><RiUserLine size={32} /></div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter text-zinc-900">{isForceOpen ? "Complete Profile" : "Edit Profile"}</h3>
+                <p className="text-[10px] text-zinc-400 font-bold uppercase mt-1">Verification Required for Bookings</p>
+              </div>
+
+              <form onSubmit={handleUpdateProfile} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-2">Full Name (Max 26 Char)</label>
+                  <div className="relative">
+                    <RiUserLine className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-500" />
+                    <input required maxLength="26" value={newName} onChange={e => setNewName(e.target.value)} className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl pl-12 pr-4 py-4 text-xs font-bold outline-none focus:border-amber-400" placeholder="Enter Full Name" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-2">WhatsApp Number (10 Digits)</label>
+                  <div className="relative">
+                    <RiSmartphoneLine className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-500" />
+                    <input required type="tel" maxLength="10" value={newPhone} onChange={handlePhoneChange} className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl pl-12 pr-12 py-4 text-xs font-bold outline-none focus:border-amber-400" placeholder="9876543210" />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-zinc-300">{newPhone.length}/10</span>
+                  </div>
+                </div>
+                <button type="submit" disabled={isUpdating} className="w-full py-5 bg-zinc-900 text-white rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-xl active:scale-95 disabled:opacity-50">
+                  {isUpdating ? "Securing Account..." : "Confirm & Save"}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <style jsx>{`
+        .animated-border-box {
+          padding: 2px; border-radius: 2.5rem;
+          background: linear-gradient(90deg, #d97706, #fbbf24, #d97706);
+          background-size: 200% 200%;
+          animation: gold-spin 4s linear infinite;
+        }
+        @keyframes gold-spin { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+      `}</style>
     </div>
   );
 };

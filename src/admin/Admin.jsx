@@ -14,8 +14,16 @@ import FloatingMenu from "./FloatingMenu";
 import logoImg from "../assets/logo.png";
 
 const Admin = ({ user, handleLogout }) => {
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  // PERSISTENCE LOGIC: Initialize state from localStorage or fallback to Dashboard
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("adminActiveTab") || "Dashboard";
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // PERSISTENCE LOGIC: Update localStorage whenever activeTab changes
+  useEffect(() => {
+    localStorage.setItem("adminActiveTab", activeTab);
+  }, [activeTab]);
 
   // Sync scroll lock with mobile menu state
   useEffect(() => {
@@ -28,6 +36,8 @@ const Admin = ({ user, handleLogout }) => {
   }, [isMobileMenuOpen]);
 
   const onLogoutInternal = async () => {
+    // PERSISTENCE LOGIC: Clear saved tab on logout for security/fresh start
+    localStorage.removeItem("adminActiveTab");
     setIsMobileMenuOpen(false);
     document.body.style.overflow = "unset"; 
     
@@ -60,7 +70,7 @@ const Admin = ({ user, handleLogout }) => {
 
       <main className="grow pt-24 md:pt-36 pb-10 px-4 max-w-360 md:px-6 md:mx-auto w-full">
         
-        {/* MOBILE BRAND HEADER - Replaced text with Logo */}
+        {/* MOBILE BRAND HEADER */}
         <div className="flex md:hidden bg-white px-5 py-3 rounded-3xl border border-zinc-100 shadow-sm items-center justify-between mb-8">
           <img 
             src={logoImg} 
